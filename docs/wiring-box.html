@@ -1,0 +1,554 @@
+<title>REISBOT Pump Box — Wiring</title>
+<style>
+  :root{
+    --hv:#D9480F; --pos:#D6336C; --neg:#212529; --pe:#2B8A3E;
+    --v24:#6741D9; --v5:#087F5B;
+    --ink:#1F1B17; --ink-2:#5C544C; --ink-3:#8A8078;
+    --bg:#FBF8F4; --card:#FFFFFF; --plate:#F5F1EA; --rule:#DED6CA; --chip:#F2EDE6;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--hv:#FF922B;--pos:#F783AC;--neg:#CED4DA;--pe:#69DB7C;--v24:#B197FC;--v5:#38D9A9;
+          --ink:#F2EDE6;--ink-2:#B8AEA3;--ink-3:#8A8078;--bg:#17140F;--card:#211D18;
+          --plate:#1C1813;--rule:#3A332B;--chip:#2C2620}
+  }
+  :root[data-theme="dark"]{--hv:#FF922B;--pos:#F783AC;--neg:#CED4DA;--pe:#69DB7C;--v24:#B197FC;
+    --v5:#38D9A9;--ink:#F2EDE6;--ink-2:#B8AEA3;--ink-3:#8A8078;--bg:#17140F;--card:#211D18;
+    --plate:#1C1813;--rule:#3A332B;--chip:#2C2620}
+  :root[data-theme="light"]{--hv:#D9480F;--pos:#D6336C;--neg:#212529;--pe:#2B8A3E;--v24:#6741D9;
+    --v5:#087F5B;--ink:#1F1B17;--ink-2:#5C544C;--ink-3:#8A8078;--bg:#FBF8F4;--card:#FFFFFF;
+    --plate:#F5F1EA;--rule:#DED6CA;--chip:#F2EDE6}
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+       font-size:16px;line-height:1.55;-webkit-text-size-adjust:100%}
+  .wrap{max-width:1100px;margin:0 auto;padding:20px 14px 60px}
+  h1{font-size:clamp(21px,4vw,29px);font-weight:800;letter-spacing:-.02em;margin:0}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.15em;
+           text-transform:uppercase;color:var(--ink-3);font-weight:600}
+  .sub-h{color:var(--ink-2);font-size:14.5px;margin:6px 0 22px;max-width:62ch}
+
+  .pass{margin:0 0 34px}
+  .pass-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+  .num{font-family:var(--mono);font-size:13px;font-weight:800;letter-spacing:.06em;
+       padding:4px 10px;border-radius:99px;color:#fff;background:var(--c)}
+  @media (prefers-color-scheme:dark){.num{color:#17140F}}
+  :root[data-theme="dark"] .num{color:#17140F}
+  :root[data-theme="light"] .num{color:#fff}
+  .pass h2{font-size:19px;font-weight:750;margin:0;letter-spacing:-.01em}
+  .pass p{margin:2px 0 8px;color:var(--ink-2);font-size:14px;max-width:66ch}
+  .p1{--c:var(--pos)} .p2{--c:var(--v24)} .p3{--c:var(--v5)}
+  figure{margin:0;overflow-x:auto;-webkit-overflow-scrolling:touch;
+         border:1px solid var(--rule);border-radius:12px;background:var(--card)}
+  svg{display:block;min-width:960px;width:100%;height:auto}
+
+  .plate{fill:var(--plate);stroke:var(--rule);stroke-width:1.5}
+  .box{fill:var(--card);stroke:var(--rule);stroke-width:1.8}
+  .term{fill:var(--card);stroke:var(--ink-3);stroke-width:1.8}
+  .brd{fill:none;stroke:var(--ink-3);stroke-width:1.2;stroke-dasharray:5 5;opacity:.6}
+  .rail{fill:var(--rule)}
+  .nm{fill:var(--ink);font-family:var(--sans);font-weight:700;font-size:13px}
+  .sub{fill:var(--ink-3);font-family:var(--sans);font-size:10.5px}
+  .tm{fill:var(--ink);font-family:var(--mono);font-size:11px;font-weight:700}
+  .tnum{fill:var(--ink);font-family:var(--mono);font-size:14px;font-weight:800}
+  .wl{fill:var(--ink-2);font-family:var(--mono);font-size:11px;font-weight:600}
+  .sec{fill:var(--ink-3);font-family:var(--mono);font-size:10px;letter-spacing:.12em}
+  /* everything not part of this pass fades back */
+  .dim{opacity:.3}
+  .w-pos{stroke:var(--pos);stroke-width:5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .w-neg{stroke:var(--neg);stroke-width:5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .w-pe{stroke:var(--pe);stroke-width:4;fill:none;stroke-linecap:round}
+  .w-sense{stroke:var(--hv);stroke-width:2.6;fill:none;stroke-linecap:round;
+           stroke-linejoin:round;stroke-dasharray:7 4}
+  .w-24{stroke:var(--v24);stroke-width:4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .w-5{stroke:var(--v5);stroke-width:3.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .dot-p{fill:var(--pos)} .dot-n{fill:var(--neg)} .dot-h{fill:var(--hv)} .dot-v{fill:var(--v24)}
+
+  .warn{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:12px;margin:6px 0 0}
+  .w1{border:2px solid var(--pos);border-radius:11px;padding:12px 14px;background:var(--card)}
+  .w1 b{display:block;color:var(--pos);font-size:13.5px;margin-bottom:3px}
+  .w1 span{font-size:13px;color:var(--ink-2)}
+
+  .gal-h{font-size:20px;font-weight:750;margin:34px 0 4px;letter-spacing:-.01em}
+  .gal-p{color:var(--ink-2);font-size:14px;max-width:70ch;margin:0 0 16px}
+  .gal-foot{color:var(--ink-3);font-size:13px;max-width:70ch;margin:16px 0 0}
+  .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+  .pc{margin:0;border:1px solid var(--rule);border-radius:12px;background:var(--card);
+      overflow:hidden;display:flex;flex-direction:column}
+  .shot{position:relative;background:var(--plate);display:flex;align-items:center;
+        justify-content:center;height:150px;overflow:hidden}
+  .shot img{max-width:100%;max-height:150px;object-fit:contain;display:block}
+  .shot .tag{position:absolute;bottom:0;left:0;right:0;font-family:var(--mono);
+             font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;
+             background:rgba(0,0,0,.62);color:#fff;padding:3px 6px;text-align:center}
+  .shot.none{color:var(--ink-3);font-size:12px;text-align:center;line-height:1.5;
+             border-bottom:1px dashed var(--rule)}
+  .pc figcaption{padding:11px 13px 14px}
+  .pref{font-family:var(--mono);font-size:11px;font-weight:800;letter-spacing:.09em;
+        color:var(--hv)}
+  .pnm{font-weight:700;font-size:14.5px;margin-top:2px;line-height:1.3}
+  .psz{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);margin-top:3px}
+  .pc p{font-size:12.8px;color:var(--ink-2);margin:8px 0 0;line-height:1.5}
+  code{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px 5px;border-radius:4px}
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">REISBOT · Pump Protection Box
+</div>
+  <h1>Wiring, three passes</h1>
+  <p class="sub-h">Same backplate every time. Do one circuit, then the next — never all
+  at once. Faded parts are not this pass. Terminals 1–5 are the box boundary: below
+  them the wires leave through a gland.</p>
+
+<!-- ============================================================ PASS 1 -->
+<section class="pass p1">
+  <div class="pass-h"><span class="num">PASS 1</span><h2>143 V power — 8 wires</h2>
+</div>
+  <p>Breaker open. In at terminal 1, up the left, along the rail, through the contactor,
+  back down to terminal 4. The return comes in at 3, through the shunt, to the − bus,
+  out at 2.</p>
+<figure>
+<svg viewBox="0 0 1000 700" role="img" aria-label="Pass 1, the 143 volt power wiring">
+  <rect class="plate" x="15" y="15" width="970" height="590" rx="9"/>
+  <text class="sec" x="28" y="34">BACKPLATE</text>
+
+  <g><rect class="rail" x="50" y="44" width="900" height="8" rx="4"/>
+  <rect class="box" x="60" y="58" width="105" height="68" rx="7"/>
+  <text class="nm" x="112" y="88" text-anchor="middle">BREAKER</text>
+  <text class="sub" x="112" y="105" text-anchor="middle">16 A</text>
+  <rect class="box" x="180" y="58" width="80" height="68" rx="7"/>
+  <text class="nm" x="220" y="88" text-anchor="middle">FUSE</text>
+  <text class="sub" x="220" y="105" text-anchor="middle">16 A</text>
+  <rect class="box dim" x="275" y="58" width="85" height="68" rx="7"/>
+  <text class="nm dim" x="317" y="88" text-anchor="middle">SPD</text>
+  <text class="sub dim" x="317" y="105" text-anchor="middle">→ earth</text>
+  <rect class="box" x="400" y="58" width="180" height="68" rx="7"/>
+  <text class="nm" x="490" y="84" text-anchor="middle">CONTACTOR</text>
+  <text class="tm" x="490" y="104" text-anchor="middle">1→2 · 3→4 · 5→6</text>
+  <text class="sub" x="490" y="119" text-anchor="middle">all three poles</text>
+  <rect class="box dim" x="850" y="58" width="100" height="68" rx="7"/>
+  <text class="nm dim" x="900" y="96" text-anchor="middle">EARTH</text></g>
+
+  <rect class="box" x="180" y="180" width="190" height="50" rx="7"/>
+  <text class="nm" x="275" y="205" text-anchor="middle">PA003-4  <tspan class="tm">143 V +</tspan></text>
+  <text class="sub" x="275" y="221" text-anchor="middle">junction block — 1 in, 3 out</text>
+  <rect class="box" x="430" y="180" width="190" height="50" rx="7"/>
+  <text class="nm" x="525" y="205" text-anchor="middle">PA003-4  <tspan class="tm">143 V −</tspan></text>
+  <text class="sub" x="525" y="221" text-anchor="middle">junction block — 1 in, 3 out</text>
+
+  <g class="dim">
+    <rect class="brd" x="55" y="285" width="390" height="130" rx="9"/>
+    <rect class="box" x="75" y="300" width="115" height="100" rx="7"/>
+    <text class="nm" x="132" y="345" text-anchor="middle">HLK-10M24</text>
+    <text class="sub" x="132" y="362" text-anchor="middle">24 V</text>
+    <rect class="box" x="200" y="300" width="100" height="100" rx="7"/>
+    <text class="nm" x="250" y="345" text-anchor="middle">LM2596</text>
+    <text class="sub" x="250" y="362" text-anchor="middle">5.1 V</text>
+    <rect class="box" x="310" y="300" width="120" height="100" rx="7"/>
+    <text class="nm" x="370" y="345" text-anchor="middle">PZEM-017</text>
+    <text class="sub" x="370" y="362" text-anchor="middle">V · A · W</text>
+    <rect class="brd" x="640" y="285" width="300" height="130" rx="9"/>
+    <rect class="box" x="655" y="300" width="110" height="100" rx="7"/>
+    <text class="nm" x="710" y="345" text-anchor="middle">RELAY</text>
+    <text class="sub" x="710" y="362" text-anchor="middle">NO</text>
+    <rect class="box" x="790" y="300" width="135" height="100" rx="7"/>
+    <text class="nm" x="857" y="345" text-anchor="middle">Pi Zero</text>
+    <text class="sub" x="857" y="362" text-anchor="middle">+ USB-RS485</text>
+  </g>
+
+  <rect class="box" x="660" y="455" width="190" height="60" rx="7"/>
+  <text class="nm" x="755" y="483" text-anchor="middle">SHUNT 50 A</text>
+  <text class="sub" x="755" y="500" text-anchor="middle">1.5 mΩ — current flows THROUGH it</text>
+  <text class="sub" x="668" y="450">panel side</text>
+  <text class="sub" x="795" y="450">pump side</text>
+
+  <!-- terminal strip -->
+  <rect class="term" x="80" y="560" width="52" height="58" rx="5"/>
+  <text class="tnum" x="106" y="585" text-anchor="middle">1</text>
+  <text class="tm" x="106" y="603" text-anchor="middle">PV+</text>
+  <rect class="term" x="145" y="560" width="52" height="58" rx="5"/>
+  <text class="tnum" x="171" y="585" text-anchor="middle">2</text>
+  <text class="tm" x="171" y="603" text-anchor="middle">PV−</text>
+  <rect class="term" x="700" y="560" width="52" height="58" rx="5"/>
+  <text class="tnum" x="726" y="585" text-anchor="middle">3</text>
+  <text class="tm" x="726" y="603" text-anchor="middle">P−</text>
+  <rect class="term" x="774" y="560" width="52" height="58" rx="5"/>
+  <text class="tnum" x="800" y="585" text-anchor="middle">4</text>
+  <text class="tm" x="800" y="603" text-anchor="middle">P+</text>
+  <rect class="term dim" x="864" y="560" width="52" height="58" rx="5"/>
+  <text class="tnum dim" x="890" y="585" text-anchor="middle">5</text>
+  <text class="tm dim" x="890" y="603" text-anchor="middle">PE</text>
+
+  <path class="w-pos" d="M106,618 V660"/><path class="w-neg" d="M171,618 V660"/>
+  <path class="w-neg" d="M726,618 V660"/><path class="w-pos" d="M800,618 V660"/>
+  <path class="w-pe dim" d="M890,618 V660"/>
+  <text class="wl" x="138" y="682" text-anchor="middle">↓ FROM PANELS</text>
+  <text class="wl" x="763" y="682" text-anchor="middle">↓ TO PUMP</text>
+
+  <!-- the eight wires -->
+  <path class="w-pos" d="M106,560 V530 H35 V92 H60"/>
+  <path class="w-pos" d="M165,92 H180"/>
+  <path class="w-pos" d="M260,92 H300 V180"/>
+  <path class="w-pos" d="M275,180 V150 H410 V126"/>
+  <path class="w-pos" d="M570,126 V150 H955 V545 H800 V560"/>
+  <path class="w-neg" d="M726,560 V515"/>
+  <path class="w-neg" d="M680,455 H630 V215 H620"/>
+  <path class="w-neg" d="M470,230 V535 H171 V560"/>
+  <circle class="dot-p" cx="300" cy="180" r="5"/>
+  <circle class="dot-p" cx="275" cy="180" r="5"/>
+  <circle class="dot-n" cx="470" cy="230" r="5"/>
+</svg>
+</figure>
+</section>
+
+<!-- ============================================================ PASS 2 -->
+<section class="pass p2">
+  <div class="pass-h"><span class="num">PASS 2</span><h2>24 V coil — 5 wires</h2>
+</div>
+  <p>The relay never touches 143 V. It switches the coil, and the coil switches the pump.
+  Only the ⌒ hump is a crossing, not a joint.</p>
+<figure>
+<svg viewBox="0 0 1000 700" role="img" aria-label="Pass 2, the 24 volt coil circuit">
+  <rect class="plate" x="15" y="15" width="970" height="590" rx="9"/>
+
+  <g><rect class="rail" x="50" y="44" width="900" height="8" rx="4"/>
+  <rect class="box dim" x="60" y="58" width="105" height="68" rx="7"/>
+  <text class="nm dim" x="112" y="96" text-anchor="middle">BREAKER</text>
+  <rect class="box dim" x="180" y="58" width="80" height="68" rx="7"/>
+  <text class="nm dim" x="220" y="96" text-anchor="middle">FUSE</text>
+  <rect class="box dim" x="275" y="58" width="85" height="68" rx="7"/>
+  <text class="nm dim" x="317" y="96" text-anchor="middle">SPD</text>
+  <rect class="box" x="400" y="58" width="180" height="68" rx="7"/>
+  <text class="nm" x="490" y="90" text-anchor="middle">CONTACTOR</text>
+  <text class="sub" x="490" y="108" text-anchor="middle">coil terminals below</text>
+  <text class="tm" x="445" y="142" text-anchor="middle">A2</text>
+  <text class="tm" x="545" y="142" text-anchor="middle">A1</text>
+  <rect class="box dim" x="850" y="58" width="100" height="68" rx="7"/>
+  <text class="nm dim" x="900" y="96" text-anchor="middle">EARTH</text></g>
+
+  <rect class="box" x="180" y="180" width="190" height="50" rx="7"/>
+  <text class="nm" x="275" y="205" text-anchor="middle">PA003-4  <tspan class="tm">143 V +</tspan></text>
+  <text class="sub" x="275" y="221" text-anchor="middle">junction block — 1 in, 3 out</text>
+  <rect class="box" x="430" y="180" width="190" height="50" rx="7"/>
+  <text class="nm" x="525" y="205" text-anchor="middle">PA003-4  <tspan class="tm">143 V −</tspan></text>
+  <text class="sub" x="525" y="221" text-anchor="middle">junction block — 1 in, 3 out</text>
+
+  <rect class="brd dim" x="55" y="285" width="390" height="130" rx="9"/>
+  <rect class="box" x="75" y="300" width="115" height="100" rx="7"/>
+  <text class="nm" x="132" y="340" text-anchor="middle">HLK-10M24</text>
+  <text class="sub" x="132" y="357" text-anchor="middle">143 V → 24 V</text>
+  <text class="tm" x="132" y="378" text-anchor="middle">+24 · 0 V</text>
+  <g class="dim">
+    <rect class="box" x="200" y="300" width="100" height="100" rx="7"/>
+    <text class="nm" x="250" y="352" text-anchor="middle">LM2596</text>
+    <rect class="box" x="310" y="300" width="120" height="100" rx="7"/>
+    <text class="nm" x="370" y="352" text-anchor="middle">PZEM-017</text>
+    <rect class="box" x="790" y="300" width="135" height="100" rx="7"/>
+    <text class="nm" x="857" y="352" text-anchor="middle">Pi Zero</text>
+    <rect class="box" x="660" y="455" width="190" height="60" rx="7"/>
+    <text class="nm" x="755" y="492" text-anchor="middle">SHUNT 50 A</text>
+  </g>
+  <rect class="brd dim" x="640" y="285" width="300" height="130" rx="9"/>
+  <rect class="box" x="655" y="300" width="110" height="100" rx="7"/>
+  <text class="nm" x="710" y="340" text-anchor="middle">RELAY</text>
+  <text class="sub" x="710" y="357" text-anchor="middle">use NO</text>
+  <text class="tm" x="710" y="378" text-anchor="middle">COM · NO</text>
+
+  <g class="dim">
+    <rect class="term" x="80" y="560" width="52" height="58" rx="5"/>
+    <text class="tnum" x="106" y="592" text-anchor="middle">1</text>
+    <rect class="term" x="145" y="560" width="52" height="58" rx="5"/>
+    <text class="tnum" x="171" y="592" text-anchor="middle">2</text>
+    <rect class="term" x="700" y="560" width="52" height="58" rx="5"/>
+    <text class="tnum" x="726" y="592" text-anchor="middle">3</text>
+    <rect class="term" x="774" y="560" width="52" height="58" rx="5"/>
+    <text class="tnum" x="800" y="592" text-anchor="middle">4</text>
+    <rect class="term" x="864" y="560" width="52" height="58" rx="5"/>
+    <text class="tnum" x="890" y="592" text-anchor="middle">5</text>
+  </g>
+
+  <!-- the five wires -->
+  <path class="w-24" d="M185,230 V300"/>
+  <path class="w-24" d="M430,230 V265 H194 A9,9 0 0 1 176,265 H105 V300"/>
+  <path class="w-24" d="M150,400 V440 H710 V400"/>
+  <path class="w-24" d="M700,300 V265 H630 V150 H545 V126"/>
+  <path class="w-24" d="M75,380 H40 V150 H445 V126"/>
+  <circle class="dot-v" cx="185" cy="230" r="5"/>
+  <circle class="dot-v" cx="430" cy="230" r="5"/>
+  <text class="wl" x="430" y="458" text-anchor="middle">+24 V → relay COM</text>
+  <text class="wl" x="612" y="143" text-anchor="middle">NO → A1</text>
+  <text class="wl" x="300" y="143" text-anchor="middle">0 V → A2</text>
+</svg>
+</figure>
+</section>
+
+<!-- ============================================================ PASS 3 -->
+<section class="pass p3">
+  <div class="pass-h"><span class="num">PASS 3</span><h2>Sensing and control — 6 wires</h2>
+</div>
+  <p>Thin wire only; none of this carries pump current. The dashed pair is millivolts —
+  twist it and keep it away from the pump cable.</p>
+<figure>
+<svg viewBox="0 0 1000 700" role="img" aria-label="Pass 3, sensing and control wiring">
+  <rect class="plate" x="15" y="15" width="970" height="590" rx="9"/>
+
+  <g class="dim"><rect class="rail" x="50" y="44" width="900" height="8" rx="4"/>
+  <rect class="box" x="60" y="58" width="105" height="68" rx="7"/>
+  <text class="nm" x="112" y="96" text-anchor="middle">BREAKER</text>
+  <rect class="box" x="180" y="58" width="80" height="68" rx="7"/>
+  <text class="nm" x="220" y="96" text-anchor="middle">FUSE</text>
+  <rect class="box" x="275" y="58" width="85" height="68" rx="7"/>
+  <text class="nm" x="317" y="96" text-anchor="middle">SPD</text>
+  <rect class="box" x="400" y="58" width="180" height="68" rx="7"/>
+  <text class="nm" x="490" y="96" text-anchor="middle">CONTACTOR</text>
+  <rect class="box" x="850" y="58" width="100" height="68" rx="7"/>
+  <text class="nm" x="900" y="96" text-anchor="middle">EARTH</text></g>
+
+  <rect class="box" x="180" y="180" width="190" height="50" rx="7"/>
+  <text class="nm" x="275" y="205" text-anchor="middle">PA003-4  <tspan class="tm">143 V +</tspan></text>
+  <text class="sub" x="275" y="221" text-anchor="middle">junction block — 1 in, 3 out</text>
+  <rect class="box" x="430" y="180" width="190" height="50" rx="7"/>
+  <text class="nm" x="525" y="205" text-anchor="middle">PA003-4  <tspan class="tm">143 V −</tspan></text>
+  <text class="sub" x="525" y="221" text-anchor="middle">junction block — 1 in, 3 out</text>
+
+  <rect class="brd dim" x="55" y="285" width="390" height="130" rx="9"/>
+  <g class="dim">
+    <rect class="box" x="75" y="300" width="115" height="100" rx="7"/>
+    <text class="nm" x="132" y="352" text-anchor="middle">HLK-10M24</text>
+    <rect class="box" x="200" y="300" width="100" height="100" rx="7"/>
+    <text class="nm" x="250" y="352" text-anchor="middle">LM2596</text>
+  </g>
+  <rect class="box" x="310" y="300" width="120" height="100" rx="7"/>
+  <text class="nm" x="370" y="338" text-anchor="middle">PZEM-017</text>
+  <text class="tm" x="350" y="295" text-anchor="middle">IN+</text>
+  <text class="tm" x="410" y="295" text-anchor="middle">IN−</text>
+  <text class="tm" x="370" y="360" text-anchor="middle">SH−  SH+</text>
+
+  <rect class="brd dim" x="640" y="285" width="300" height="130" rx="9"/>
+  <rect class="box" x="655" y="300" width="110" height="100" rx="7"/>
+  <text class="nm" x="710" y="345" text-anchor="middle">RELAY</text>
+  <text class="tm" x="710" y="364" text-anchor="middle">IN</text>
+  <rect class="box" x="790" y="300" width="135" height="100" rx="7"/>
+  <text class="nm" x="857" y="340" text-anchor="middle">Pi Zero</text>
+  <text class="sub" x="857" y="357" text-anchor="middle">+ USB-RS485</text>
+  <text class="tm" x="857" y="376" text-anchor="middle">GPIO17</text>
+
+  <rect class="box" x="660" y="455" width="190" height="60" rx="7"/>
+  <text class="nm" x="755" y="483" text-anchor="middle">SHUNT 50 A</text>
+  <text class="sub" x="755" y="500" text-anchor="middle">small screws only</text>
+  <text class="sub" x="666" y="450">panel = SH−</text>
+  <text class="sub" x="790" y="450">pump = SH+</text>
+
+  <g class="dim">
+    <rect class="term" x="80" y="560" width="52" height="58" rx="5"/>
+    <text class="tnum" x="106" y="592" text-anchor="middle">1</text>
+    <rect class="term" x="145" y="560" width="52" height="58" rx="5"/>
+    <text class="tnum" x="171" y="592" text-anchor="middle">2</text>
+    <rect class="term" x="700" y="560" width="52" height="58" rx="5"/>
+    <text class="tnum" x="726" y="592" text-anchor="middle">3</text>
+    <rect class="term" x="774" y="560" width="52" height="58" rx="5"/>
+    <text class="tnum" x="800" y="592" text-anchor="middle">4</text>
+    <rect class="term" x="864" y="560" width="52" height="58" rx="5"/>
+    <text class="tnum" x="890" y="592" text-anchor="middle">5</text>
+  </g>
+
+  <!-- the six wires -->
+  <path class="w-5" d="M350,230 V300"/>
+  <path class="w-5" d="M430,230 V270 H410 V300"/>
+  <circle class="dot-p" cx="350" cy="230" r="5"/>
+  <circle class="dot-n" cx="430" cy="230" r="5"/>
+  <path class="w-sense" d="M820,455 V430 H400 V400"/>
+  <path class="w-sense" d="M690,455 V445 H355 V400"/>
+  <circle class="dot-h" cx="820" cy="455" r="5"/>
+  <circle class="dot-h" cx="690" cy="455" r="5"/>
+  <path class="w-5" d="M790,350 H765"/>
+  <path class="w-5" d="M400,400 V420 H860 V400"/>
+  <text class="wl" x="560" y="418" text-anchor="middle">sense pair — twisted</text>
+  <text class="wl" x="620" y="437" text-anchor="middle">USB-RS485 · meter ↔ Pi</text>
+  <text class="wl" x="778" y="336" text-anchor="middle">GPIO17</text>
+</svg>
+</figure>
+</section>
+
+<div class="warn">
+  <div class="w1"><b>Sense screws, not the fat bolts</b>
+    <span>The shunt's small screws go to the PZEM. The M6 bolts go in the pump cable
+    with ring lugs. Reversed, 50 A passes through a millivolt input and the meter is
+    destroyed.</span>
+</div>
+  <div class="w1"><b>Amps reading zero?</b>
+    <span>The pump-side small screw is <code>SH+</code>. Reversed, the meter shows
+    0.00 A while volts look perfect — it imitates a dead pump. Harmless; swap the
+    two.</span>
+</div>
+  <div class="w1"><b>All three poles, every time</b>
+    <span>The contactor is AC-rated. One gap will not break 143 V DC — it welds shut,
+    and then the pump cannot be switched off at all.</span>
+</div>
+
+</div>
+
+<h2 class="gal-h">What each part looks like</h2>
+<p class="gal-p">Photos are <b>examples of the type</b> from Wikimedia Commons — they
+are not your exact parts, and I have left a card blank rather than show a lookalike
+where I could not verify one. On a 143&nbsp;V DC build the wrong part is worse than no
+picture. The size and the identifying feature are the reliable checks; measure and read
+the label rather than matching the photo.</p>
+<div class="gallery">
+    <figure class="pc">
+      <div class="shot"><img src="data:image/jpeg;base64,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" alt="Pantec DC 16 A 550 V" loading="lazy"><span class="tag">example of the type</span></div>
+      <figcaption>
+        <div class="pref">BREAKER</div>
+        <div class="pnm">Pantec DC 16 A 550 V</div>
+        <div class="psz">2-pole · 36 mm wide</div>
+        <p>Must say <b>DC</b> and <b>550 V</b> on the front. An AC breaker of the same shape will not break a DC arc.</p>
+      </figcaption>
+    </figure>
+    <figure class="pc">
+      <div class="shot none"><span>no verified photo<br><b>identify by the description</b></span></div>
+      <figcaption>
+        <div class="pref">FUSE</div>
+        <div class="pnm">Hegel DC 1000 V holder</div>
+        <div class="psz">18 mm wide</div>
+        <p>Cartridge holder that hinges open. The body is marked 1000 V DC.</p>
+      </figcaption>
+    </figure>
+    <figure class="pc">
+      <div class="shot none"><span>no verified photo<br><b>identify by the description</b></span></div>
+      <figcaption>
+        <div class="pref">SPD</div>
+        <div class="pnm">Type 2 DC surge arrester</div>
+        <div class="psz">36 mm wide</div>
+        <p>Two or three plug-in cartridges with a small window that turns <b>red</b> when the module is spent.</p>
+      </figcaption>
+    </figure>
+    <figure class="pc">
+      <div class="shot"><img src="data:image/jpeg;base64,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" alt="Schneider LP1K0901BD" loading="lazy"><span class="tag">example of the type</span></div>
+      <figcaption>
+        <div class="pref">CONTACTOR</div>
+        <div class="pnm">Schneider LP1K0901BD</div>
+        <div class="psz">45 × 58 × 57 mm</div>
+        <p>Coil terminals marked <b>A1</b> and <b>A2</b>; poles marked 1–6. The <b>BD</b> suffix means a 24 V DC coil.</p>
+      </figcaption>
+    </figure>
+    <figure class="pc">
+      <div class="shot"><img src="data:image/jpeg;base64,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" alt="PA003-4 junction block ×3" loading="lazy"><span class="tag">example of the type</span></div>
+      <figcaption>
+        <div class="pref">BUS</div>
+        <div class="pnm">PA003-4 junction block ×3</div>
+        <div class="psz">on the DIN rail</div>
+        <p>A row of screw holes all connected internally. Both sides read 0 V apart — it joins wires, it does not measure.</p>
+      </figcaption>
+    </figure>
+    <figure class="pc">
+      <div class="shot none"><span>no verified photo<br><b>identify by the description</b></span></div>
+      <figcaption>
+        <div class="pref">SHUNT</div>
+        <div class="pnm">50 A / 75 mV DC shunt</div>
+        <div class="psz">brass bar, ~80 mm</div>
+        <p>Two <b>fat M6 bolts</b> at the ends and two <b>small screws</b> in the middle. If it has only two terminals it is the wrong part. Must read <b>50 A</b>, not 100 A.</p>
+      </figcaption>
+    </figure>
+    <figure class="pc">
+      <div class="shot none"><span>no verified photo<br><b>identify by the description</b></span></div>
+      <figcaption>
+        <div class="pref">PZEM-017</div>
+        <div class="pnm">DC energy meter</div>
+        <div class="psz">black box, 4-pin header</div>
+        <p>Terminal block reading <code>IN+ IN− SHUNT+ SHUNT−</code> and a separate 2-pin RS485 A/B header. Comes with the USB cable.</p>
+      </figcaption>
+    </figure>
+    <figure class="pc">
+      <div class="shot none"><span>no verified photo<br><b>identify by the description</b></span></div>
+      <figcaption>
+        <div class="pref">HLK-10M24</div>
+        <div class="pnm">143 V → 24 V supply</div>
+        <div class="psz">encapsulated brick, ~38 × 23 mm</div>
+        <p>Sealed black block, input and output pins at opposite ends, 24 V marked on the label.</p>
+      </figcaption>
+    </figure>
+    <figure class="pc">
+      <div class="shot none"><span>no verified photo<br><b>identify by the description</b></span></div>
+      <figcaption>
+        <div class="pref">LM2596</div>
+        <div class="pnm">24 V → 5.1 V buck</div>
+        <div class="psz">~43 × 21 mm board</div>
+        <p>Small blue trimmer pot on top. <b>Set it to 5.1 V before the Pi ever touches it.</b></p>
+      </figcaption>
+    </figure>
+    <figure class="pc">
+      <div class="shot none"><span>no verified photo<br><b>identify by the description</b></span></div>
+      <figcaption>
+        <div class="pref">RELAY</div>
+        <div class="pnm">5 V relay module</div>
+        <div class="psz">1-channel board</div>
+        <p>Screw terminals marked <code>COM NO NC</code> and pins <code>VCC GND IN</code>. Use <b>NO</b>.</p>
+      </figcaption>
+    </figure>
+    <figure class="pc">
+      <div class="shot"><img src="data:image/jpeg;base64,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" alt="Raspberry Pi Zero W" loading="lazy"><span class="tag">example of the type</span></div>
+      <figcaption>
+        <div class="pref">Pi</div>
+        <div class="pnm">Raspberry Pi Zero W</div>
+        <div class="psz">65 × 30 mm</div>
+        <p>Two micro-USB sockets and a mini-HDMI. Photo is a Zero&nbsp;2&nbsp;W — same board outline, different centre chip.</p>
+      </figcaption>
+    </figure>
+    <figure class="pc">
+      <div class="shot none"><span>no verified photo<br><b>identify by the description</b></span></div>
+      <figcaption>
+        <div class="pref">LCD</div>
+        <div class="pnm">20 × 4 character LCD</div>
+        <div class="psz">98 × 60 mm</div>
+        <p>I²C backpack soldered on the back with a blue contrast trimmer. Reads through the clear lid.</p>
+      </figcaption>
+    </figure>
+    <figure class="pc">
+      <div class="shot"><img src="data:image/jpeg;base64,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" alt="PG-16 cable gland ×2" loading="lazy"><span class="tag">example of the type</span></div>
+      <figcaption>
+        <div class="pref">GLAND</div>
+        <div class="pnm">PG-16 cable gland ×2</div>
+        <div class="psz">PG-16 thread</div>
+        <p>One for the panel cable, one for the pump cable. Grips the sheath, not the conductors.</p>
+      </figcaption>
+    </figure>
+</div>
+
+<h2 class="gal-h">Water level relays — the two SSRC-04s</h2>
+<p class="gal-p">Two SSRC-04 units, hacked to run on 12&nbsp;V DC. Each uses three
+rods: <b>B</b> deepest (common reference), <b>L</b> low, <b>U</b> high. Both
+powered from the new 12&nbsp;V rail. The <b>well</b> is the hard safety layer;
+the <b>tank</b> is the automation.</p>
+
+<div class="scroll"><table>
+  <tr><th>SSRC-04 terminal</th><th>WELL unit</th><th>TANK unit</th></tr>
+  <tr><td><span class="t">A1 / A2</span> supply</td><td>12&nbsp;V + / &minus; (HLK-20M12)</td><td>12&nbsp;V + / &minus; (HLK-20M12)</td></tr>
+  <tr><td><span class="t">B</span> common rod</td><td>deepest, above the pump</td><td>bottom of tank</td></tr>
+  <tr><td><span class="t">L</span> low rod</td><td>min safe level</td><td>refill level</td></tr>
+  <tr><td><span class="t">U</span> high rod</td><td>recharge level</td><td>full level</td></tr>
+  <tr><td><span class="t">C</span> + <span class="t">NO</span> output</td>
+      <td><b>in series with the contactor coil</b> (hardware dry-run block) — <i>and</i> a PC817 opto across it &rarr; Pi <span class="t">pin&nbsp;40</span></td>
+      <td><span class="t">C</span>&rarr;GND <span class="t">pin&nbsp;39</span>, <span class="t">NO</span>&rarr;Pi <span class="t">pin&nbsp;38</span></td></tr>
+</table></div>
+
+<div class="warn">
+  <div class="w1"><b>Well = hardware safety, all modes</b>
+    <span>C+NO physically in the contactor coil circuit. Dry well &rarr; coil can't
+    energize &rarr; pump can't run, even if the Pi is dead. The PC817 opto just
+    lets the Pi <i>display</i> it (pin 40), isolated from the 24&nbsp;V coil.</span></div>
+  <div class="w1"><b>Tank = automation, Auto only</b>
+    <span>Straight to the Pi (pin 38). Full tank stops the pump in Auto; in Manual
+    you may fill past it. The overflow float switch is the hardware backup here.</span></div>
+  <div class="w1"><b>Screened probe cable</b>
+    <span>Run the B/L/U rods on screened cable with the screen to GND, or cable
+    capacitance reads as phantom water. Keep the EXC/common away from the probe
+    cores.</span></div>
+</div>
+
+<p class="gal-foot">No free photo exists for the PZEM-017, HLK-10M24, LM2596, relay
+board, shunt, SPD or LCD. The real pictures of the exact items are on the shop pages
+already linked in <code>BUILD.md</code> — open those on your phone when the parcels
+arrive.</p>
+
+</div>

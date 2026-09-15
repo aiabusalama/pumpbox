@@ -1,0 +1,527 @@
+<title>Pump Controller — Enclosure Build</title>
+
+<style>
+  :root {
+    --bg: #FAF9F6;
+    --panel: #FFFFFF;
+    --line: #DAD6CD;
+    --line-soft: #EBE8E1;
+    --ink: #1A1C1F;
+    --ink-2: #575B62;
+    --ink-3: #8A8F97;
+
+    --hv: #C03A20;
+    --hv-bg: #FAE8E3;
+    --ctl: #A96D06;
+    --ctl-bg: #FBF0DC;
+    --lv: #2A7648;
+    --lv-bg: #E3F1E8;
+    --data: #2C6AA3;
+    --data-bg: #E3EDF6;
+
+    --mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, monospace;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121417; --panel: #1A1D21; --line: #2C3037; --line-soft: #23262B;
+      --ink: #ECEDEF; --ink-2: #A0A5AD; --ink-3: #6C727B;
+      --hv: #F06D4C; --hv-bg: #331E1A; --ctl: #E5A339; --ctl-bg: #31260E;
+      --lv: #54B87C; --lv-bg: #142E1D; --data: #68A3DB; --data-bg: #142637;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #121417; --panel: #1A1D21; --line: #2C3037; --line-soft: #23262B;
+    --ink: #ECEDEF; --ink-2: #A0A5AD; --ink-3: #6C727B;
+    --hv: #F06D4C; --hv-bg: #331E1A; --ctl: #E5A339; --ctl-bg: #31260E;
+    --lv: #54B87C; --lv-bg: #142E1D; --data: #68A3DB; --data-bg: #142637;
+  }
+  :root[data-theme="light"] {
+    --bg: #FAF9F6; --panel: #FFFFFF; --line: #DAD6CD; --line-soft: #EBE8E1;
+    --ink: #1A1C1F; --ink-2: #575B62; --ink-3: #8A8F97;
+    --hv: #C03A20; --hv-bg: #FAE8E3; --ctl: #A96D06; --ctl-bg: #FBF0DC;
+    --lv: #2A7648; --lv-bg: #E3F1E8; --data: #2C6AA3; --data-bg: #E3EDF6;
+  }
+
+  body {
+    margin: 0; padding: 0 20px 90px;
+    background: var(--bg); color: var(--ink);
+    font-family: var(--sans); line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+
+  header { padding: 52px 0 30px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--ink-3); margin: 0 0 13px;
+  }
+  h1 {
+    font-size: clamp(27px, 5vw, 40px); line-height: 1.08; letter-spacing: -.022em;
+    font-weight: 630; margin: 0 0 15px; text-wrap: balance;
+  }
+  .standfirst { font-size: 17px; color: var(--ink-2); max-width: 58ch; margin: 0; }
+
+  h2 {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .14em;
+    text-transform: uppercase; font-weight: 600; color: var(--ink-2);
+    margin: 52px 0 18px; padding-bottom: 9px; border-bottom: 1px solid var(--line);
+  }
+  h3 { font-size: 15px; font-weight: 620; letter-spacing: -.008em; margin: 30px 0 10px; }
+  p { max-width: 66ch; }
+
+  /* legend */
+  .legend { display: flex; flex-wrap: wrap; gap: 7px; margin: 26px 0 0; padding: 0; list-style: none; }
+  .legend li {
+    display: flex; align-items: center; gap: 7px;
+    font-family: var(--mono); font-size: 11.5px;
+    padding: 5px 11px 5px 7px; border: 1px solid var(--line);
+    border-radius: 3px; background: var(--panel);
+  }
+  .sw { width: 16px; height: 4px; border-radius: 2px; }
+
+  /* figure */
+  .figure {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 4px; padding: 10px; overflow-x: auto; margin: 0 0 7px;
+  }
+  .figure svg { display: block; min-width: 620px; width: 100%; height: auto; }
+  figcaption { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); margin-bottom: 34px; }
+
+  .s-name { font: 600 12px var(--sans); fill: var(--ink); }
+  .s-sub  { font: 400 10px var(--mono); fill: var(--ink-2); }
+  .s-dim  { font: 400 9.5px var(--mono); fill: var(--ink-3); }
+  .s-tag  { font: 600 9.5px var(--mono); letter-spacing: .07em; }
+
+  /* tables */
+  .tw { overflow-x: auto; margin-bottom: 6px; }
+  table { border-collapse: collapse; width: 100%; min-width: 440px; font-size: 14px; }
+  caption {
+    text-align: left; font-family: var(--mono); font-size: 11px;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3);
+    padding-bottom: 7px;
+  }
+  th {
+    text-align: left; font-family: var(--mono); font-size: 10.5px;
+    letter-spacing: .06em; text-transform: uppercase; font-weight: 500;
+    color: var(--ink-3); border-bottom: 1px solid var(--line); padding: 7px 13px 7px 0;
+  }
+  td {
+    padding: 8px 13px 8px 0; border-bottom: 1px solid var(--line-soft);
+    font-variant-numeric: tabular-nums; vertical-align: top;
+  }
+  td.m { font-family: var(--mono); white-space: nowrap; font-size: 13px; }
+  td.num { text-align: right; font-family: var(--mono); }
+  tfoot td { border-bottom: none; border-top: 1px solid var(--line); font-weight: 620; padding-top: 10px; }
+  tr:last-child td { border-bottom: none; }
+
+  /* callouts */
+  .warn, .note {
+    padding: 15px 19px; margin: 26px 0; border-radius: 0 3px 3px 0;
+  }
+  .warn { border-left: 3px solid var(--hv); background: var(--hv-bg); }
+  .note { border-left: 3px solid var(--data); background: var(--data-bg); }
+  .warn strong { color: var(--hv); }
+  .warn p, .note p { margin: 0; max-width: 62ch; }
+  .warn p + p, .note p + p { margin-top: 9px; }
+
+  /* steps */
+  .steps { counter-reset: s; list-style: none; padding: 0; margin: 20px 0 0; }
+  .steps > li {
+    counter-increment: s; position: relative;
+    padding: 0 0 26px 42px; border-left: 1px solid var(--line);
+    margin-left: 11px;
+  }
+  .steps > li:last-child { border-left-color: transparent; padding-bottom: 0; }
+  .steps > li::before {
+    content: counter(s); position: absolute; left: -12px; top: -2px;
+    width: 23px; height: 23px; border-radius: 50%;
+    background: var(--ink); color: var(--bg);
+    font: 600 11px var(--mono); display: grid; place-items: center;
+  }
+  .steps h3 { margin: -2px 0 7px; }
+  .steps p, .steps ul { max-width: 62ch; }
+  .steps ul { padding-left: 18px; margin: 8px 0; }
+  .steps li li { margin-bottom: 4px; font-size: 14px; }
+
+  /* checklist */
+  .checks { list-style: none; padding: 0; margin: 18px 0 0; }
+  .checks li {
+    display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: start;
+    padding: 10px 13px 10px 0; border-bottom: 1px solid var(--line-soft);
+    font-size: 14px; max-width: 72ch;
+  }
+  .checks li::before {
+    content: ""; width: 14px; height: 14px; margin-top: 4px;
+    border: 1.5px solid var(--ink-3); border-radius: 2px; justify-self: center;
+  }
+
+  code {
+    font-family: var(--mono); font-size: .9em;
+    background: var(--line-soft); padding: 1px 5px; border-radius: 3px;
+  }
+  a { color: var(--data); }
+</style>
+
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">Assembly plan · one sealed unit</p>
+  <h1>Pump controller enclosure</h1>
+  <p class="standfirst">
+    Everything on one backplate inside a single IP65 box: contactor, protection
+    gear, power supplies, Pi and screen. Four cables in, one cable out, nothing
+    loose.
+  </p>
+
+  <ul class="legend">
+    <li><span class="sw" style="background:var(--hv)"></span>143 V array</li>
+    <li><span class="sw" style="background:var(--ctl)"></span>24 V control</li>
+    <li><span class="sw" style="background:var(--lv)"></span>5 V logic</li>
+    <li><span class="sw" style="background:var(--data)"></span>data</li>
+  </ul>
+</header>
+
+<h2>The box</h2>
+
+<p>
+  A <strong>300 × 200 × 150 mm</strong> polycarbonate enclosure, IP65, with a
+  clear lid. The contactor alone is 45 × 58 × 57 mm, and it needs air around it,
+  so 150 mm depth is the working minimum — a 100 mm box will not close over the
+  contactor plus wiring.
+</p>
+
+<p>
+  The clear lid matters: the LCD stays sealed inside and you read it through
+  the cover. No cutout, no gasket to fail, no water path.
+</p>
+
+<div class="note">
+  <p>Ask for the version <strong>with a mounting backplate</strong> (montaj
+  plakası). Everything screws to that plate on the bench, then the finished
+  plate drops into the box as one piece. Assembling inside a box is miserable.</p>
+</div>
+
+<h2>Layout on the backplate</h2>
+
+<figure class="figure">
+<svg viewBox="0 0 760 470" role="img" aria-label="Backplate layout: DIN rail across the top carrying breaker, fuse, SPD and contactor; power board and logic board below; LCD and Pi on the right.">
+  <defs>
+    <pattern id="hatch" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="0" x2="0" y2="6" stroke="var(--line)" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <!-- plate outline -->
+  <rect x="24" y="20" width="712" height="430" rx="4"
+        fill="url(#hatch)" stroke="var(--ink-3)" stroke-width="1.5" opacity="0.9"/>
+  <rect x="24" y="20" width="712" height="430" rx="4" fill="var(--panel)" opacity="0.85"/>
+  <rect x="24" y="20" width="712" height="430" rx="4" fill="none" stroke="var(--ink-3)" stroke-width="1.5"/>
+  <text x="34" y="40" class="s-dim">BACKPLATE · 300 × 200 mm</text>
+
+  <!-- DIN rail -->
+  <rect x="44" y="60" width="672" height="9" rx="1.5" fill="var(--line)" stroke="var(--ink-3)" stroke-width="1"/>
+  <text x="640" y="54" class="s-dim" text-anchor="end">35 mm DIN rail</text>
+
+  <!-- DIN devices -->
+  <g>
+    <rect x="52" y="69" width="70" height="86" rx="2" fill="var(--hv-bg)" stroke="var(--hv)" stroke-width="1.5"/>
+    <text x="60" y="90" class="s-name">Breaker</text>
+    <text x="60" y="106" class="s-sub">16 A DC</text>
+    <text x="60" y="120" class="s-sub">2-pole</text>
+    <text x="60" y="146" class="s-dim">36 mm</text>
+
+    <rect x="128" y="69" width="52" height="86" rx="2" fill="var(--hv-bg)" stroke="var(--hv)" stroke-width="1.5"/>
+    <text x="136" y="90" class="s-name">Fuse</text>
+    <text x="136" y="106" class="s-sub">16 A</text>
+    <text x="136" y="120" class="s-sub">1000 V</text>
+    <text x="136" y="146" class="s-dim">18 mm</text>
+
+    <rect x="186" y="69" width="70" height="86" rx="2" fill="var(--hv-bg)" stroke="var(--hv)" stroke-width="1.5"/>
+    <text x="194" y="90" class="s-name">SPD</text>
+    <text x="194" y="106" class="s-sub">Type 2 DC</text>
+    <text x="194" y="120" class="s-sub">→ earth</text>
+    <text x="194" y="146" class="s-dim">36 mm</text>
+
+    <rect x="278" y="69" width="96" height="110" rx="2" fill="var(--hv-bg)" stroke="var(--hv)" stroke-width="2"/>
+    <text x="288" y="90" class="s-name">Contactor</text>
+    <text x="288" y="106" class="s-sub">LP1K0901BD</text>
+    <text x="288" y="122" class="s-sub">3 poles series</text>
+    <text x="288" y="140" class="s-sub">coil 24 V</text>
+    <text x="288" y="170" class="s-dim">45 × 58 × 57</text>
+  </g>
+
+  <!-- earth bar -->
+  <rect x="396" y="69" width="86" height="40" rx="2" fill="var(--panel)" stroke="var(--ink-3)" stroke-width="1.5"/>
+  <text x="404" y="86" class="s-name">Earth bar</text>
+  <text x="404" y="101" class="s-sub">SPD + box</text>
+
+  <!-- ==== Board A ==== -->
+  <rect x="52" y="200" width="300" height="150" rx="3" fill="var(--panel)" stroke="var(--hv)" stroke-width="2"/>
+  <text x="64" y="222" class="s-name">Board A — power side</text>
+  <text x="64" y="238" class="s-dim">5 × 7 cm perfboard, 4 standoffs</text>
+
+  <g>
+    <rect x="64" y="250" width="80" height="34" rx="2" fill="var(--hv-bg)" stroke="var(--hv)" stroke-width="1"/>
+    <text x="72" y="264" class="s-sub">3 × PA003-4</text>
+    <text x="72" y="277" class="s-dim">143 V bus</text>
+
+    <rect x="152" y="250" width="92" height="34" rx="2" fill="var(--ctl-bg)" stroke="var(--ctl)" stroke-width="1"/>
+    <text x="160" y="264" class="s-sub">HLK-10M24</text>
+    <text x="160" y="277" class="s-dim">→ 24 V, 10 W</text>
+
+    <rect x="252" y="250" width="88" height="34" rx="2" fill="var(--lv-bg)" stroke="var(--lv)" stroke-width="1"/>
+    <text x="260" y="264" class="s-sub">LM2596</text>
+    <text x="260" y="277" class="s-dim">→ 5.1 V</text>
+
+    <rect x="64" y="296" width="120" height="34" rx="2" fill="var(--data-bg)" stroke="var(--data)" stroke-width="1"/>
+    <text x="72" y="310" class="s-sub">PZEM-017</text>
+    <text x="72" y="323" class="s-dim">V + shunt sense</text>
+
+    <rect x="192" y="296" width="148" height="34" rx="2" fill="var(--ctl-bg)" stroke="var(--ctl)" stroke-width="1"/>
+    <text x="200" y="310" class="s-sub">5 V relay module</text>
+    <text x="200" y="323" class="s-dim">switches the coil</text>
+  </g>
+
+  <!-- ==== Board B ==== -->
+  <rect x="380" y="200" width="150" height="150" rx="3" fill="var(--panel)" stroke="var(--lv)" stroke-width="2"/>
+  <text x="392" y="222" class="s-name">Board B — logic</text>
+  <text x="392" y="238" class="s-dim">5 × 7 cm perfboard</text>
+
+  <rect x="392" y="250" width="126" height="38" rx="2" fill="var(--data-bg)" stroke="var(--data)" stroke-width="1"/>
+  <text x="400" y="266" class="s-sub">MAX485</text>
+  <text x="400" y="280" class="s-dim">RS485 ↔ TTL</text>
+
+  <rect x="392" y="298" width="126" height="38" rx="2" fill="var(--lv-bg)" stroke="var(--lv)" stroke-width="1"/>
+  <text x="400" y="314" class="s-sub">Pi Zero W</text>
+  <text x="400" y="328" class="s-dim">+ heatsink</text>
+
+  <!-- ==== LCD ==== -->
+  <rect x="558" y="200" width="158" height="150" rx="3" fill="var(--panel)" stroke="var(--lv)" stroke-width="2"/>
+  <text x="570" y="222" class="s-name">LCD 20 × 4</text>
+  <text x="570" y="238" class="s-dim">98 × 60 mm</text>
+  <rect x="570" y="250" width="134" height="66" rx="2" fill="var(--data-bg)" stroke="var(--data)" stroke-width="1.5"/>
+  <text x="580" y="272" class="s-sub">read through</text>
+  <text x="580" y="288" class="s-sub">the clear lid</text>
+  <text x="570" y="336" class="s-dim">tall standoffs</text>
+
+  <!-- ==== glands ==== -->
+  <g>
+    <rect x="52" y="386" width="128" height="46" rx="2" fill="var(--hv-bg)" stroke="var(--hv)" stroke-width="1.5"/>
+    <text x="62" y="404" class="s-sub">PG-16 gland</text>
+    <text x="62" y="420" class="s-dim">array in, 4 mm²</text>
+
+    <rect x="192" y="386" width="128" height="46" rx="2" fill="var(--hv-bg)" stroke="var(--hv)" stroke-width="1.5"/>
+    <text x="202" y="404" class="s-sub">PG-16 gland</text>
+    <text x="202" y="420" class="s-dim">pump out</text>
+
+    <rect x="332" y="386" width="128" height="46" rx="2" fill="var(--panel)" stroke="var(--ink-3)" stroke-width="1.5"/>
+    <text x="342" y="404" class="s-sub">PG-9 gland</text>
+    <text x="342" y="420" class="s-dim">earth</text>
+
+    <rect x="472" y="386" width="150" height="46" rx="2" fill="var(--panel)" stroke="var(--ink-3)" stroke-width="1.5"/>
+    <text x="482" y="404" class="s-sub">Breather</text>
+    <text x="482" y="420" class="s-dim">stops condensation</text>
+  </g>
+
+  <text x="640" y="416" class="s-dim" text-anchor="end">bottom edge</text>
+</svg>
+</figure>
+<figcaption>Everything mounts to the backplate. Glands enter along the bottom edge so water runs off, never in.</figcaption>
+
+<div class="warn">
+  <p><strong>Keep the 143 V and 5 V sides apart.</strong> Board A carries array
+  voltage; Board B and the Pi do not. Route their wiring on opposite sides of
+  the plate and never bundle them together in the same tie.</p>
+</div>
+
+<h2>Assembly order</h2>
+
+<ol class="steps">
+
+<li>
+  <h3>Drill the plate, mount the rail</h3>
+  <p>
+    Lay every component on the bare plate and shuffle until it fits with room to
+    work. Mark the holes, drill, then fit the DIN rail across the top.
+  </p>
+  <p>
+    Leave <strong>25 mm clear</strong> around the contactor. It dissipates 1.3 W
+    continuously and wants air.
+  </p>
+</li>
+
+<li>
+  <h3>Solder Board A</h3>
+  <p>Three terminal blocks, the HLK-10M24, and the LM2596 onto one perfboard.</p>
+  <ul>
+    <li>Terminals and HLK are PCB-pin parts — they solder through the board</li>
+    <li>Give the LM2596 header sockets so it can be swapped without desoldering</li>
+    <li>Use thicker wire for the 143 V traces; thin hookup wire is not enough</li>
+  </ul>
+</li>
+
+<li>
+  <h3>Set the LM2596 — before it touches anything</h3>
+  <p>
+    Feed it 24 V with the output disconnected. Turn the trimmer until your meter
+    reads <code>5.1 V</code>. Only then wire the output.
+  </p>
+  <p>
+    These ship set anywhere from 1.2 V to 35 V. An unadjusted one destroys the Pi
+    the instant you connect it.
+  </p>
+</li>
+
+<li>
+  <h3>Solder Board B</h3>
+  <p>
+    MAX485 on header sockets, and header pins for the jumper leads to the Pi.
+    Mount the Pi beside it on M3 standoffs.
+  </p>
+</li>
+
+<li>
+  <h3>Mount both boards on standoffs</h3>
+  <p>
+    <strong>10 mm minimum</strong> so solder joints never touch the plate. Longer
+    ones under the LCD bring it close to the lid for easy reading.
+  </p>
+</li>
+
+<li>
+  <h3>Wire inside the box</h3>
+  <p>
+    Ferrules on every stranded end. A single loose strand across 143 V is a fire.
+    Ring lugs on the shunt bolts.
+  </p>
+  <p>
+    Leave a service loop on each run so the boards can be lifted out without
+    disconnecting everything.
+  </p>
+</li>
+
+<li>
+  <h3>Fit glands and test dry</h3>
+  <p>
+    Glands along the bottom edge only. Run the whole bench test with the lid
+    open before anything sees array voltage.
+  </p>
+</li>
+
+</ol>
+
+<h2>Parts you still need</h2>
+
+<div class="tw">
+<table>
+  <caption>Motorobit</caption>
+  <thead><tr><th style="width:46%">Item</th><th style="width:14%">Qty</th><th>Purpose</th><th class="num">₺</th></tr></thead>
+  <tbody>
+    <tr><td><a href="https://www.motorobit.com/ttl-rs485-seri-donusturucu-karti-max485">MAX485 module</a></td><td class="m">1</td><td>PZEM to Pi UART</td><td class="num">33</td></tr>
+    <tr><td><a href="https://www.motorobit.com/urun/5x7cm-epoxy-cift-tarafli-delikli-plaket">5 × 7 cm perfboard</a></td><td class="m">2</td><td>Boards A and B</td><td class="num">50</td></tr>
+    <tr><td><a href="https://www.motorobit.com/120-piece-m3-metal-spacer-set-standoff">M3 standoff set, 120 pc</a></td><td class="m">1</td><td>mounting everything</td><td class="num">180</td></tr>
+    <tr><td><a href="https://www.motorobit.com/40pin-20cm-female-female-jumper-cable">F-F jumper leads</a></td><td class="m">1</td><td>Pi to LCD, MAX485</td><td class="num">40</td></tr>
+    <tr><td><a href="https://www.motorobit.com/800-pieces-8-types-of-insulated-ferrule-set-cable-ferrule">Ferrule set + crimper</a></td><td class="m">1</td><td>every stranded end</td><td class="num">180</td></tr>
+    <tr><td><a href="https://www.motorobit.com/jg6-6-m6-skp-kablo-pabucu">M6 ring lugs</a></td><td class="m">4</td><td>shunt bolts</td><td class="num">40</td></tr>
+    <tr><td><a href="https://www.motorobit.com/pg-16-10-14-mm-polyamid-rakoru-43478">PG-16 gland</a></td><td class="m">2</td><td>array in, pump out</td><td class="num">30</td></tr>
+    <tr><td><a href="https://www.motorobit.com/pg-9-4-8-mm-polyamid-rakoru">PG-9 gland</a></td><td class="m">1</td><td>earth</td><td class="num">12</td></tr>
+  </tbody>
+  <tfoot><tr><td colspan="3">Subtotal</td><td class="num">565</td></tr></tfoot>
+</table>
+</div>
+
+<div class="tw">
+<table>
+  <caption>Solardepo</caption>
+  <thead><tr><th style="width:46%">Item</th><th style="width:14%">Qty</th><th>Purpose</th><th class="num">₺</th></tr></thead>
+  <tbody>
+    <tr><td><a href="https://www.solardepo.com/hegel-dc-1000v-20ka-kartus-yuvasi-hegel-dc-20a-1000v-kartus-sigorta">DC fuse 16 A + holder</a></td><td class="m">1</td><td>overcurrent</td><td class="num">150</td></tr>
+    <tr><td><a href="https://www.solardepo.com/pantec-dc-16a-550v-devre-kesici">DC breaker 16 A</a></td><td class="m">1</td><td>manual isolation</td><td class="num">250</td></tr>
+    <tr><td><a href="https://www.solardepo.com">DC SPD Type 2</a></td><td class="m">1</td><td>surge</td><td class="num">350</td></tr>
+  </tbody>
+  <tfoot><tr><td colspan="3">Subtotal</td><td class="num">750</td></tr></tfoot>
+</table>
+</div>
+
+<div class="tw">
+<table>
+  <caption>Local — electrical supply and electronics shops</caption>
+  <thead><tr><th style="width:46%">Item</th><th style="width:14%">Qty</th><th>Purpose</th><th class="num">₺</th></tr></thead>
+  <tbody>
+    <tr><td>IP65 box 300 × 200 × 150, clear lid, <b>with backplate</b></td><td class="m">1</td><td>the enclosure</td><td class="num">650</td></tr>
+    <tr><td>35 mm DIN rail, 250 mm length</td><td class="m">1</td><td>carries the DIN devices</td><td class="num">40</td></tr>
+    <tr><td>LM2596 buck converter</td><td class="m">1</td><td>24 V → 5 V</td><td class="num">60</td></tr>
+    <tr><td>Heatsink for the Pi</td><td class="m">1</td><td>thermal margin</td><td class="num">20</td></tr>
+    <tr><td>SD card, endurance grade</td><td class="m">1</td><td>survives write cycles</td><td class="num">150</td></tr>
+    <tr><td>4 mm² solar cable + MC4 pair</td><td class="m">1</td><td>array to box</td><td class="num">430</td></tr>
+    <tr><td>Breather / vent plug</td><td class="m">1</td><td>stops condensation</td><td class="num">60</td></tr>
+    <tr><td>Earth terminal bar</td><td class="m">1</td><td>SPD and box earth</td><td class="num">40</td></tr>
+    <tr><td>Solder, flux, heat shrink, cable ties</td><td class="m">—</td><td>consumables</td><td class="num">150</td></tr>
+  </tbody>
+  <tfoot><tr><td colspan="3">Subtotal</td><td class="num">1,600</td></tr></tfoot>
+</table>
+</div>
+
+<div class="tw">
+<table>
+  <caption>Total</caption>
+  <tbody>
+    <tr><td>Motorobit</td><td class="num">₺565</td></tr>
+    <tr><td>Solardepo</td><td class="num">₺750</td></tr>
+    <tr><td>Local</td><td class="num">₺1,600</td></tr>
+  </tbody>
+  <tfoot><tr><td>To buy</td><td class="num">₺2,915</td></tr></tfoot>
+</table>
+</div>
+
+<p style="margin-top:22px; color:var(--ink-2)">
+  Already on hand: Pi Zero W, PZEM-017 with shunt, 20 × 4 LCD, 5 V relay,
+  HLK-10M24, HLK-PM01 (spare), three PA003-4 terminals, the contactor, and a
+  soldering iron.
+</p>
+
+<h2>Before the lid goes on</h2>
+
+<ul class="checks">
+  <li>Array rewired to 3S1P — three panels in series, one string</li>
+  <li>LM2596 output measured at 5.1 V with the Pi disconnected</li>
+  <li>All three contactor poles chained in series, not paralleled</li>
+  <li>Contactor coil on 24 V, never on the 143 V bus</li>
+  <li>Shunt in the negative return — fat bolts carry current, small screws sense</li>
+  <li>Ferrules crimped on every stranded conductor</li>
+  <li>SPD earth and box earth both landed on the earth bar</li>
+  <li>SPD confirmed DC-rated — an AC unit looks identical and fails badly here</li>
+  <li>Glands on the bottom edge only, tightened onto the cable jacket</li>
+  <li>Breather fitted — a sealed box in the sun will condense inside</li>
+  <li>Bench test passed with the lid open: LCD, relay, shunt config, meter</li>
+  <li>Dashboard reachable over WiFi from your phone</li>
+  <li>Nothing loose that could shift and bridge two terminals</li>
+</ul>
+
+<h2>What connects to the outside world</h2>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:24%">Cable</th><th style="width:22%">Through</th><th>Goes to</th></tr></thead>
+  <tbody>
+    <tr><td class="m">Array +/−</td><td class="m">PG-16</td><td>MC4 pair at the panels</td></tr>
+    <tr><td class="m">Pump +/−</td><td class="m">PG-16</td><td>the pump's 10 m tail</td></tr>
+    <tr><td class="m">Earth</td><td class="m">PG-9</td><td>ground rod</td></tr>
+    <tr><td class="m">WiFi</td><td class="m">—</td><td>no cable; keep the box off metal</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+  Three cables. Everything else lives inside and never gets touched again.
+</p>
+
+<div class="note">
+  <p>Polycarbonate does not block 2.4 GHz, so the Pi's WiFi works through a
+  closed lid. A metal box would kill it — if you end up using one, the Pi needs
+  an external antenna.</p>
+</div>
+
+</div>

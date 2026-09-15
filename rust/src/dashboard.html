@@ -1,0 +1,1824 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#06090B" media="(prefers-color-scheme:dark)">
+<meta name="theme-color" content="#C9D4D8" media="(prefers-color-scheme:light)">
+<title>REISBOT</title>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   BEZEL — chrome is achromatic, colour means state.
+   Read at dawn in a shed, at night from bed, and at noon in Anatolian sun
+   with wet hands. Nothing on this page is coloured except the machine's own
+   message, so a man four metres from the box knows what his pump is doing
+   before he has focused on a single glyph.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ---------- NIGHT BAY (default) ---------- */
+:root{
+  --bg:#06090B; --panel:#0D1417; --face:#0A1114; --panel2:#131C21; --panel3:#1A252B;
+  --line:#1F2C33;            /* decorative hairline */
+  --line-strong:#55737F;     /* meaningful boundary — 3.76 on --face */
+  --ink:#EAF2F4; --soft:#A2B6BE; --faint:#7E939C;
+
+  --run:#2BD07A;  --run-ink:#45E094;  --on-run:#04160C;
+  --hold:#F2A81C; --hold-solid:#F2A81C; --hold-ink:#FFBE45; --on-hold:#1A1200;
+  --trip:#D92222; --trip-ink:#FF7A7A; --on-trip:#FFFFFF;
+  --redline:#FF3B30;
+
+  --z-safe:#182631; --z-edge:#5C4207; --z-edge-hatch:#8A6109; --z-danger:#521315;
+  --z-kill-a:#D92222; --z-kill-b:#2A0708;
+  --hero-run:#12251C; --hero-warn:#2A2211; --hero-bad:#2E1518;
+
+  --bevel-hi:rgba(255,255,255,.05); --bevel-lo:rgba(0,0,0,.55);
+  --face-in:inset 0 2px 5px rgba(0,0,0,.55), inset 0 0 0 1px rgba(0,0,0,.35);
+  --grain:rgba(255,255,255,.014);
+  --ghost-ink:#171E21;       /* literal hex, never color-mix — 1.128:1 on --face */
+  --lift:0 6px 16px rgba(0,0,0,.22);
+
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,"Roboto Mono",Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+
+/* ---------- DAYLIGHT ENAMEL (direct sun) ---------- */
+@media (prefers-color-scheme:light){
+  :root{
+    --bg:#C9D4D8; --panel:#FFFFFF; --face:#EEF3F5; --panel2:#EDF2F4; --panel3:#E1E8EB;
+    --line:#A8B8BE; --line-strong:#5E7178;
+    --ink:#080F12; --soft:#33444B; --faint:#4F626A;
+
+    --run:#0A7038;  --run-ink:#0A6B34;  --on-run:#FFFFFF;
+    --hold:#B8710A; --hold-solid:#8A5000; --hold-ink:#7A4600; --on-hold:#FFFFFF;
+    --trip:#B01212; --trip-ink:#9E1010; --on-trip:#FFFFFF;
+    --redline:#C01010;
+
+    --z-safe:#F2F6F7; --z-edge:#FBE7C0; --z-edge-hatch:#E8C07A; --z-danger:#F3B7B7;
+    --z-kill-a:#B01212; --z-kill-b:#FFFFFF;
+    --hero-run:#E7F5EC; --hero-warn:#FCF1E0; --hero-bad:#FBEAEA;
+
+    --bevel-hi:rgba(255,255,255,.9); --bevel-lo:rgba(16,30,36,.14);
+    --face-in:inset 0 1px 3px rgba(16,30,36,.13), inset 0 0 0 1px rgba(16,30,36,.07);
+    --grain:rgba(16,30,36,.020);
+    --ghost-ink:#E0E5E7;     /* 1.136:1 on --face */
+    --lift:0 6px 16px rgba(16,30,36,.10);
+  }
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.45 var(--sans);
+  -webkit-font-smoothing:antialiased;padding:0 0 env(safe-area-inset-bottom)}
+/* chassis grain — fixed, zero cost, kills the flat-web-page read */
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:repeating-linear-gradient(0deg,var(--grain) 0 1px,transparent 1px 3px)}
+
+.wrap{max-width:560px;margin:0 auto;padding:0 12px calc(126px + env(safe-area-inset-bottom)) 14px}
+@media(min-width:900px){ .wrap{max-width:960px} }
+
+/* ══════════ THE SPINE — state legible across a yard ══════════ */
+.spine{position:fixed;left:0;top:0;bottom:0;width:5px;z-index:40;pointer-events:none;
+  background:var(--spine,var(--line-strong));border-right:1px solid rgba(0,0,0,.35)}
+body[data-tone=run]  {--spine:var(--run)}
+body[data-tone=ready]{--spine:var(--soft)}
+body[data-tone=warn] {--spine:var(--hold-solid)}
+body[data-tone=bad]  {--spine:var(--trip)}
+body[data-tone=idle] {--spine:var(--line-strong)}
+body[data-tone=stale]{--spine:var(--faint)}
+body[data-tone=stale] .spine{background:repeating-linear-gradient(180deg,var(--faint) 0 8px,transparent 8px 16px)}
+@keyframes spine-run{from{background-position:0 -120px}to{background-position:0 100vh}}
+body[data-tone=run] .spine{
+  background-image:linear-gradient(180deg,transparent,rgba(255,255,255,.85),transparent);
+  background-size:100% 120px;background-repeat:no-repeat;animation:spine-run 3.2s linear infinite}
+@keyframes spine-trip{0%,100%{opacity:1}50%{opacity:.45}}
+body[data-tone=bad] .spine{animation:spine-trip 1.1s ease-in-out infinite}
+
+/* ══════════ HEADER LOCKUP ══════════ */
+header{display:flex;align-items:center;justify-content:space-between;height:52px;
+  position:sticky;top:0;z-index:15;background:color-mix(in srgb,var(--bg) 92%,transparent);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+  margin:0 -12px 10px -14px;padding:0 12px 0 14px}
+.lock{display:flex;align-items:center;gap:10px}
+.mark{color:var(--soft);display:block;flex:0 0 auto}
+#markNeedle{fill:var(--spine,var(--line-strong));
+            transition:transform .45s cubic-bezier(.2,.7,.2,1)}
+body[data-tone=stale] .mark{opacity:.45}
+.vr{width:1px;height:26px;background:var(--line);flex:0 0 auto}
+.wm{display:block;fill:var(--ink)}
+.wmsub{font:400 9.5px/1 var(--mono);letter-spacing:.20em;text-transform:uppercase;
+  color:var(--faint);margin-top:5px}
+.link{display:flex;align-items:center;gap:7px;font:600 10.5px/1 var(--mono);
+  letter-spacing:.18em;text-transform:uppercase;color:var(--faint);flex:0 0 auto}
+.dot{width:7px;height:7px;border-radius:0;background:var(--trip);flex:0 0 auto}
+.dot.up{background:var(--run)}
+
+/* ══════════ MATERIALS — bezel, faceplate, engraving ══════════ */
+.inst{background:var(--panel);border:1px solid var(--line);border-radius:3px;
+  padding:3px;margin-top:8px;position:relative;
+  box-shadow:inset 0 1px 0 var(--bevel-hi), 0 1px 2px var(--bevel-lo), var(--lift)}
+.inst::before,.inst::after{content:"";position:absolute;width:9px;height:9px;
+  border:1px solid var(--line-strong);pointer-events:none}
+.inst::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
+.inst::after {bottom:-1px;right:-1px;border-left:0;border-top:0}
+.face{background:var(--face);border-radius:2px;padding:15px 13px;box-shadow:var(--face-in)}
+.eng{text-shadow:0 1px 0 rgba(0,0,0,.6)}
+@media(prefers-color-scheme:light){.eng{text-shadow:0 1px 0 rgba(255,255,255,.9)}}
+
+h2{margin:0 0 12px;display:flex;align-items:center;gap:10px;
+  font:600 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+h2::after{content:"";flex:1;height:1px;background:var(--line)}
+
+/* ══════════ HERO ══════════ */
+.hero{padding:3px}
+.hero .face{position:relative;overflow:hidden;padding:14px 14px 12px;min-height:0}
+.chips{display:flex;gap:6px;align-items:center;padding-bottom:10px;
+  border-bottom:1px solid var(--line);margin-bottom:12px}
+.chip{font:600 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--soft);background:var(--panel3);border:1px solid var(--line-strong);
+  border-radius:2px;padding:5px 9px}
+.state{font:700 42px/.96 var(--mono);letter-spacing:.02em;color:var(--ink);
+  font-variant-numeric:tabular-nums slashed-zero;margin:0;overflow-wrap:break-word}
+.why{font:400 15px/1.45 var(--sans);color:var(--soft);margin:8px 0 0;min-height:22px}
+
+#hero[data-tone=run]  .face{background:var(--hero-run)}
+#hero[data-tone=warn] .face{background:var(--hero-warn)}
+#hero[data-tone=bad]  .face{background:var(--hero-bad)}
+#hero[data-tone=run]  .state{color:var(--run-ink)}
+#hero[data-tone=warn] .state{color:var(--hold-ink)}
+#hero[data-tone=bad]  .state{color:var(--trip-ink)}
+#hero[data-tone=idle] .state{color:var(--soft)}
+#hero[data-tone=stale] .face{background:var(--bg);box-shadow:none;
+  border:1px dashed var(--line-strong)}
+#hero[data-tone=bad] .face::before{content:"";position:absolute;left:0;right:0;top:0;height:6px;
+  background:repeating-linear-gradient(45deg,var(--trip) 0 6px,transparent 6px 12px)}
+#hero[data-tone=warn] .face::after{content:"";position:absolute;left:0;bottom:0;height:2px;
+  width:var(--settle,0%);background:var(--hold-solid)}
+
+/* five lamps — all dark is the strongest NO CONTACT signal there is */
+.ann{display:flex;gap:5px;margin-top:14px}
+.an{flex:1;text-align:center;font:700 9px/1 var(--mono);letter-spacing:.10em;padding:6px 2px;
+  border-radius:2px;background:color-mix(in srgb,var(--ink) 5%,transparent);
+  color:color-mix(in srgb,var(--ink) 24%,transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 8%,transparent)}
+.an.on  {background:var(--run);        color:var(--on-run);  box-shadow:0 0 9px color-mix(in srgb,var(--run) 50%,transparent)}
+.an.on.a{background:var(--hold-solid); color:var(--on-hold); box-shadow:0 0 9px color-mix(in srgb,var(--hold-solid) 45%,transparent)}
+.an.on.r{background:var(--trip);       color:var(--on-trip); box-shadow:0 0 9px color-mix(in srgb,var(--trip) 50%,transparent)}
+
+/* ══════════ BENCH BANNER / SEAL PLATE ══════════ */
+.banner{position:relative;margin-top:8px;padding:13px 13px 12px;border-radius:0;
+  background:var(--panel2);border-left:3px solid var(--hold-solid);
+  font:400 13px/1.5 var(--sans);color:var(--ink)}
+.banner::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;
+  background:repeating-linear-gradient(45deg,var(--hold-solid) 0 6px,transparent 6px 12px)}
+.banner b{display:block;font:600 11px/1 var(--mono);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--hold-ink);margin:4px 0 6px}
+.banner[hidden]{display:none}
+
+/* ══════════ READOUTS — ghost segment plates ══════════ */
+.nums{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px;margin-top:8px}
+.n{padding:3px;display:flex}
+.n .face{flex:1;padding:11px 11px 9px}
+/* every numeral in the row sits on one baseline, whatever its size */
+.rd{position:relative;height:34px;font-family:var(--mono);
+  font-variant-numeric:tabular-nums slashed-zero;
+  font-weight:700;letter-spacing:-.01em;line-height:1;text-align:right;font-size:24px}
+.rd.big{font-size:34px}
+.rd .g  {position:absolute;right:0;bottom:0;color:var(--ghost-ink)}
+/* the 10px opaque left gutter: without it 0.00 over 88.88 reads as 880.00 */
+.rd .val{position:absolute;right:0;bottom:0;color:var(--ink);
+  background:var(--face);box-shadow:-10px 0 0 var(--face)}
+/* Retained ghosts behind em dashes render 888.8 / 88.88 / 8888 — a plausible
+   live reading during no reading, exactly the lie the dash pipeline prevents. */
+body.stale .rd .g,body.noread .rd .g{visibility:hidden}
+.u{display:block;font:600 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--faint);margin-top:7px;text-align:right}
+.trend{font:400 13px/1 var(--mono);letter-spacing:0;color:var(--faint);margin-right:6px}
+
+/* ══════════ THE VOLTAGE WINDOW ══════════ */
+.hr{font:700 34px/1 var(--mono);font-variant-numeric:tabular-nums slashed-zero;color:var(--ink)}
+.hr.w{color:var(--hold-ink)}
+.hr.b{color:var(--trip-ink)}
+.hr.n{color:var(--faint)}
+.hrl{font:600 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--faint);margin-top:6px}
+.hrk{font:600 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--trip-ink);margin-top:5px}
+.hrk[hidden]{display:none}
+.bandwrap{position:relative;padding-top:30px;margin-top:16px}
+.band{position:relative;height:34px;border-radius:0;border:1px solid var(--line-strong);
+  background:var(--z-safe);overflow:visible}
+.zone{position:absolute;top:0;bottom:0}
+.safe  {background:var(--z-safe)}
+.edge  {background:var(--z-edge);
+  background-image:repeating-linear-gradient(45deg,transparent 0 5px,var(--z-edge-hatch) 5px 6px)}
+.danger{background:var(--z-danger)}
+.kill  {background:repeating-linear-gradient(45deg,var(--z-kill-a) 0 5px,var(--z-kill-b) 5px 10px)}
+.kill[hidden]{display:none}
+.tick{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--trip);
+  box-shadow:0 0 0 1px var(--face)}
+.rl{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--redline)}
+.rl[hidden]{display:none}
+.now{position:absolute;top:-6px;bottom:-6px;width:3px;background:var(--ink);
+  box-shadow:0 0 0 1px var(--face);transition:left .45s cubic-bezier(.2,.7,.2,1)}
+.now::before{content:"";position:absolute;top:-5px;left:50%;transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:var(--ink);border-bottom:0}
+.now[hidden]{display:none}
+.range{position:absolute;height:3px;background:var(--soft);opacity:.4;top:100%;margin-top:4px}
+.range[hidden]{display:none}
+.mlabel{position:absolute;top:0;border-radius:0;font:700 12px/1 var(--mono);
+  font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--ink);
+  background:var(--panel3);border:1px solid var(--line-strong);padding:4px 7px;
+  transform:translateX(var(--nudge,-50%));transition:left .45s cubic-bezier(.2,.7,.2,1)}
+.mlabel[hidden]{display:none}
+.mlabel.off{color:var(--on-trip);background:var(--trip);border-color:var(--trip)}
+.ruler{position:relative;height:22px;margin-top:9px}
+.ruler i{position:absolute;top:0;width:1px;background:var(--line-strong)}
+.ruler i.mj{height:8px}
+.ruler i.mn{height:5px}
+.ruler b{position:absolute;top:11px;transform:translateX(-50%);
+  font:400 10px/1 var(--mono);letter-spacing:.06em;color:var(--faint)}
+.bandkey{position:relative;height:16px;font:600 11px/1 var(--mono);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--trip-ink)}
+.bandkey span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.mgn{position:relative;height:16px;margin-top:2px}
+.mgn[hidden]{display:none}
+.mgn i{position:absolute;height:5px;border:1px solid var(--hold-ink);border-top:0}
+.mgn b{position:absolute;top:6px;transform:translateX(-50%);font:400 10px/1 var(--mono);
+  letter-spacing:.06em;color:var(--hold-ink);white-space:nowrap}
+
+/* ══════════ ROWS, NOTES, FORMS ══════════ */
+.note{font:400 13px/1.5 var(--sans);color:var(--soft);margin:14px 0 0;
+  padding-left:9px;border-left:2px solid var(--line-strong)}
+.note[hidden]{display:none}
+.intro{font:400 15px/1.45 var(--sans);color:var(--ink);margin:0 0 14px}
+.row{display:flex;align-items:baseline;gap:10px;padding:9px 0;border-bottom:0}
+.row .k{order:0;flex:0 0 auto;font:400 14px/1.3 var(--sans);color:var(--soft)}
+.row::before{content:"";order:1;flex:1 1 auto;height:0;
+  border-bottom:1px dotted var(--line);transform:translateY(-4px)}
+.row .v{order:2;flex:0 0 auto;font:500 13px/1.2 var(--mono);letter-spacing:.01em;
+  font-variant-numeric:tabular-nums slashed-zero;text-align:right}
+
+label{display:block;margin-bottom:11px}
+label span{display:block;font:400 13px/1.3 var(--sans);color:var(--soft);margin-bottom:6px}
+input,select{width:100%;background:var(--panel3);border:1px solid var(--line-strong);
+  color:var(--ink);border-radius:2px;padding:12px;font-family:var(--mono);font-size:16px;
+  font-variant-numeric:tabular-nums slashed-zero}
+input:focus,select:focus{outline:2px solid var(--hold-solid);outline-offset:1px;border-color:transparent}
+input::placeholder{font-size:13px;color:var(--faint)}
+/* Locked must read as LESS editable than before. A dashed underline versus a
+   filled box is unmistakable in sun, where opacity is not. */
+input:disabled,select:disabled{background:transparent;border:0;
+  border-bottom:1px dashed var(--line-strong);border-radius:0;padding-left:0;
+  color:var(--soft);opacity:1;cursor:not-allowed}
+label:has(input:disabled) span::after{content:" · LOCKED";color:var(--faint);letter-spacing:.14em}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ══════════ BUTTONS ══════════ */
+button{font:inherit;border:0;cursor:pointer}
+.ghost{display:block;width:100%;background:var(--panel3);color:var(--ink);
+  border:1px solid var(--line-strong);border-radius:2px;padding:15px;
+  font:700 14px/1 var(--sans);letter-spacing:.06em;text-transform:uppercase;
+  transition:filter .15s}
+.ghost:active{filter:brightness(1.15)}
+.ghost:disabled{background:transparent;color:var(--faint);cursor:not-allowed}
+
+/* ══════════ THE SINGLE MORPHING ACTION CONTROL ══════════
+   One rect, one place, always present — even when it can do nothing.        */
+.actbar{position:fixed;left:0;right:0;bottom:calc(56px + env(safe-area-inset-bottom));
+  z-index:30;height:62px}
+#stopbar[data-act=stop]::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;
+  z-index:2;pointer-events:none;
+  background:repeating-linear-gradient(45deg,rgba(0,0,0,.45) 0 6px,transparent 6px 12px)}
+.act{position:absolute;inset:0;width:100%;height:62px;border:0;border-radius:0;cursor:pointer;
+  font:700 18px/1 var(--mono);letter-spacing:.18em;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  transition:background-color .22s ease,color .22s ease}
+.act[hidden]{display:none}
+.act::before{font-size:13px;letter-spacing:0}
+.act .sub{display:none;font:400 12px/1.2 var(--sans);letter-spacing:0;color:var(--faint);
+  max-width:92%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-transform:uppercase}
+/* All three appearances select through #stopbar[data-act=…] so specificity is
+   equal and the last rule wins. Never dim a green rectangle and call it off. */
+#stopbar[data-act=start] #btnStart{background:var(--run);color:var(--on-run)}
+#stopbar[data-act=start] #btnStart::before{content:"\25B6"}
+#stopbar[data-act=stop]  #btnStop {background:var(--trip);color:var(--on-trip)}
+#stopbar[data-act=stop]  #btnStop::before{content:"\25A0"}
+#stopbar[data-act=inert] #btnStart{
+  background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);
+  border-top:1px solid var(--line-strong);color:var(--faint);cursor:not-allowed;
+  flex-direction:column;gap:4px;font-size:11px;letter-spacing:.14em}
+#stopbar[data-act=inert] #btnStart::before{content:none}
+#stopbar[data-act=inert] .sub{display:block}
+@keyframes act-swap{0%{opacity:1;transform:translateY(0)}
+                    45%{opacity:0;transform:translateY(5px)}
+                    100%{opacity:1;transform:translateY(0)}}
+/* the word swaps, the rectangle does not: a translucent STOP is not a STOP */
+.act .lbl.swap{animation:act-swap .26s ease}
+/* START and STOP share pixels. An accidental STOP is safe; an accidental
+   START is 1500 W. STOP is never armed, never delayed, never confirm-gated. */
+@keyframes arming{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+#btnStart[data-arming]::after{content:"";position:absolute;left:0;bottom:0;height:2px;
+  width:100%;background:var(--on-run);opacity:.6;transform-origin:left;
+  animation:arming .7s linear}
+
+/* ══════════ TABS ══════════ */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);
+  background:color-mix(in srgb,var(--panel) 94%,transparent);backdrop-filter:blur(12px);
+  border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:20}
+nav.tabs button{background:none;border:0;border-left:1px solid var(--line);border-radius:0;
+  min-height:56px;padding:16px 3px;color:var(--faint);
+  font:600 10px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase}
+nav.tabs button:first-child{border-left:0}
+nav.tabs button[aria-selected=true]{color:var(--ink);box-shadow:inset 0 2px 0 var(--ink)}
+section[hidden]{display:none}
+
+/* ══════════ MESSAGES ══════════ */
+.msg{border-radius:0;padding:11px 13px;margin-top:10px;font:400 14px/1.4 var(--sans);display:none}
+.msg.show{display:block}
+.msg.good{background:color-mix(in srgb,var(--run) 14%,transparent);color:var(--run-ink)}
+.msg.bad {background:color-mix(in srgb,var(--trip) 14%,transparent);color:var(--trip-ink)}
+/* the command toast rides directly above the action control, on every tab */
+#cmdmsg{position:absolute;bottom:100%;left:0;right:0;margin:0;
+  border-top:1px solid currentColor;padding:10px 14px;font:400 13px/1.35 var(--sans)}
+#cmdmsg.good{background:color-mix(in srgb,var(--run) 14%,var(--panel))}
+#cmdmsg.bad {background:color-mix(in srgb,var(--trip) 14%,var(--panel))}
+
+/* ══════════ WIZARD ══════════ */
+.step{display:flex;gap:13px;padding:14px 0;border-bottom:1px solid var(--line)}
+.step:last-child{border-bottom:0}
+.step .num{flex:0 0 26px;height:26px;border-radius:2px;background:var(--panel3);
+  border:1px solid var(--line-strong);display:grid;place-items:center;
+  font:600 12px/1 var(--mono);color:var(--faint)}
+.step.on .num{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:700}
+.step.done .num{background:var(--run);color:var(--on-run);border-color:var(--run)}
+.step h3{margin:2px 0 4px;font:600 15px/1.35 var(--sans)}
+.step p{margin:0;font:400 14px/1.45 var(--sans);color:var(--soft)}
+.big{font:700 24px/1 var(--mono);font-variant-numeric:tabular-nums slashed-zero;margin:8px 0 0}
+.prog{height:4px;border-radius:0;background:var(--panel3);overflow:hidden;margin:10px 0}
+.prog i{display:block;height:100%;background:var(--ink);width:0;transition:width .5s linear}
+/* Step 2 starts a 1500 W pump. It must not look like "download a CSV". */
+#wizBtn[data-danger]{background:var(--hold-solid);color:var(--on-hold);border-color:var(--hold-solid);
+  font:700 18px/1 var(--mono);letter-spacing:.10em;padding:19px}
+
+/* ══════════ LOG ══════════ */
+.ev{position:relative;font-family:var(--mono);font-size:12px;padding:10px 0 10px 13px;
+  border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px;align-items:baseline}
+.ev::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:3px;background:var(--soft)}
+.ev[data-kind=crit]::before{background:var(--trip)}
+.ev[data-kind=warn]::before{background:var(--hold-solid)}
+.ev:last-child{border-bottom:0}
+.ev time{font:400 10px/1 var(--mono);letter-spacing:.06em;color:var(--faint);flex:0 0 auto}
+.ev .reason{font:700 12px/1 var(--mono);letter-spacing:.06em;color:var(--soft)}
+.ev[data-kind=crit] .reason{color:var(--trip-ink)}
+.ev[data-kind=warn] .reason{color:var(--hold-ink)}
+.ev .rdg{color:var(--faint);margin-left:auto;flex:0 0 auto;
+  font-variant-numeric:tabular-nums slashed-zero;text-align:right}
+.ev .det{flex:1 0 100%;font:400 13px/1.4 var(--sans);color:var(--soft);margin-top:-2px}
+.daydiv{display:flex;align-items:center;gap:10px;font:600 11px/1 var(--mono);
+  letter-spacing:.14em;color:var(--faint);padding:16px 0 8px}
+.daydiv::after{content:"";flex:1;height:1px;background:var(--line)}
+.daydiv:first-child{padding-top:0}
+.empty{color:var(--faint);text-align:center;padding:26px 0;font:400 14px/1.4 var(--sans)}
+
+/* ══════════ PROFILES ══════════ */
+.prof-now{font:400 14px/1.3 var(--sans);color:var(--soft);margin:2px 0 12px}
+#profNow{font:700 13px/1 var(--mono);letter-spacing:.06em;color:var(--ink)}
+.prof-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+.prof{border:1px solid var(--line-strong);border-radius:2px;padding:13px 14px;background:var(--panel2)}
+.prof h3{font:600 15px/1.35 var(--sans);margin:0 0 8px}
+.prof ul{margin:0 0 8px;padding-left:18px;font:400 14px/1.6 var(--sans);color:var(--soft)}
+.prof ul b{color:var(--ink);font-family:var(--mono);font-size:13px}
+.prof .why{font:400 13px/1.45 var(--sans);color:var(--faint);margin:0 0 10px;min-height:0}
+.badge{font:700 9px/1 var(--mono);letter-spacing:.10em;color:var(--on-run);background:var(--run);
+  border-radius:2px;padding:4px 7px;margin-left:8px;vertical-align:middle}
+.badge[hidden]{display:none}
+.prof-pass{display:block;margin:14px 0 0}
+label span.passrow{display:flex;gap:8px;align-items:stretch;margin-bottom:0}
+.passrow input{flex:1 1 auto}
+.passrow .ghost{flex:0 0 auto;width:auto;padding:12px 14px;font-size:12px}
+.warn-order{font:400 13px/1.5 var(--sans);margin:12px 0 0;padding:10px 12px;border-radius:0;
+  border-left:3px solid var(--hold-solid);background:var(--panel2);color:var(--ink)}
+.warn-order code{font-family:var(--mono);font-size:12px;color:var(--hold-ink)}
+
+/* the seal plate: green means correct, not alarming */
+.locked-note{margin:0 0 12px;padding:12px 13px;border-radius:0;
+  border-left:3px solid var(--run);background:var(--panel2);
+  font:400 13px/1.5 var(--sans);color:var(--ink)}
+.locked-note b{display:block;font:600 11px/1 var(--mono);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--run-ink);margin-bottom:7px}
+.locked-note[hidden]{display:none}
+
+button.working{position:relative;opacity:1 !important;cursor:progress;letter-spacing:.10em}
+button.working::after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;
+  background:currentColor;opacity:.35;animation:workbar 900ms linear infinite}
+@keyframes workbar{0%{transform:scaleX(0);transform-origin:left}
+                   50%{transform:scaleX(1);transform-origin:left}
+                   51%{transform:scaleX(1);transform-origin:right}
+                   100%{transform:scaleX(0);transform-origin:right}}
+
+/* ══════════ MOTION BUDGET ══════════ */
+@media (prefers-reduced-motion:reduce){
+  .spine{animation:none!important}
+  .act .lbl.swap{animation:none}
+  #btnStart[data-arming]::after{animation:none;opacity:.35}
+  button.working::after{animation:none;opacity:.5}
+  .now,.mlabel,#markNeedle{transition-duration:.15s}
+}
+
+.levels{display:flex;gap:18px;justify-content:center;padding:6px 0 2px}
+.gauge{flex:1;max-width:150px;text-align:center}
+.glabel{font:600 11px/1 var(--mono,monospace);letter-spacing:.14em;
+        color:var(--ink3,#8a8);text-transform:uppercase}
+.vessel{position:relative;height:104px;width:74px;margin:9px auto 7px;
+        border:2px solid var(--ink,#cde);border-radius:5px 5px 11px 11px;
+        overflow:hidden;background:var(--panel2,#0c1417)}
+.vessel::after{content:"";position:absolute;inset:0;
+        background:repeating-linear-gradient(0deg,transparent 0 25%,
+        color-mix(in srgb,var(--ink,#cde) 12%,transparent) 25% 26%)}
+.water{position:absolute;left:0;right:0;bottom:0;height:0;
+       background:linear-gradient(180deg,#3aa0e8,#1663b0);
+       transition:height .7s cubic-bezier(.4,0,.2,1);box-shadow:0 -1px 6px #3aa0e8aa}
+.water.dry{background:linear-gradient(180deg,#8a5a2a,#5a3a18);box-shadow:none}
+.gstate{font:700 15px/1 var(--mono,monospace);letter-spacing:.06em;margin-top:2px}
+.gstate.ok{color:#3aa0e8} .gstate.low{color:var(--warn,#e0900c)}
+.gstate.none{color:var(--ink3,#8a8);font-weight:500;font-size:12px}
+
+.pinmap{display:flex;flex-direction:column;gap:3px;margin:8px 0 4px;
+        font:600 11px/1 var(--mono,monospace)}
+.prow{display:grid;grid-template-columns:1fr 26px 26px 1fr;align-items:center;gap:4px}
+.pno{background:var(--panel2,#0c1417);border:1px solid var(--line,#243);
+     border-radius:3px;text-align:center;padding:3px 0;color:var(--ink3,#8a8)}
+.plab{padding:3px 6px;border-radius:3px;white-space:nowrap;overflow:hidden;
+      text-overflow:ellipsis}
+.plab:first-child{text-align:right}
+.sensor{background:#1663b0;color:#fff}
+.io{background:color-mix(in srgb,var(--amber,#e0900c) 22%,transparent);color:var(--ink,#cde)}
+.pwr5{background:#b0353522;color:#e57373} .pwr3{background:#c9770022;color:#e0a060}
+.gnd{background:#2a2f3322;color:var(--ink3,#8a8)} .free{color:var(--ink3,#556);opacity:.6}
+.pinkey{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:8px;font:600 10px/1 var(--mono,monospace);color:var(--ink3,#8a8)}
+.pinkey i{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:middle;margin-right:4px}
+.k-sensor{background:#1663b0}.k-io{background:#e0900c}.k-pwr5{background:#e57373}
+.k-pwr3{background:#e0a060}.k-gnd{background:#556}.k-free{background:#334}
+
+.probes{display:flex;flex-direction:column;gap:16px;margin:8px 0 2px}
+.probe-col{border:1px solid var(--line,#243);border-radius:8px;padding:10px}
+.probe{width:130px;display:block;margin:6px auto}
+.vessel-o{fill:var(--panel2,#0c1417);stroke:var(--ink,#cde);stroke-width:2}
+.water-f{fill:#1663b0aa}
+.surf{stroke:#3aa0e8;stroke-width:2}
+.mount{fill:var(--ink3,#8a8)}
+.rod{stroke:var(--amber,#e0900c);stroke-width:2.5}
+.tip{fill:var(--amber,#e0900c)}
+.rlab{fill:var(--amber,#e0900c);font:700 13px var(--mono,monospace);text-anchor:middle}
+.pump{fill:#556;stroke:var(--ink3,#8a8)}
+.plab2{fill:#fff;font:600 7px var(--mono,monospace);text-anchor:middle}
+.inlet{fill:none;stroke:#3aa0e8;stroke-width:2}
+.slab{fill:var(--ink3,#8a8);font:600 8px var(--mono,monospace)}
+.rkey{margin:6px 0 4px;padding-left:16px;font-size:12px;line-height:1.5;color:var(--ink2,#b8aea3)}
+.rkey b{color:var(--amber,#e0900c);font-family:var(--mono,monospace)}
+.rnote{font-size:11.5px;color:var(--ink3,#8a8);line-height:1.5;margin:4px 0 0}
+
+/* ══════════ WIRING TAB FRAMING ══════════ */
+/* the one fact a field tech reads first — pins for the water sensors */
+.callout{margin:0 0 14px;padding:11px 13px;border-radius:0;
+  border-left:3px solid #1663b0;background:var(--panel2);
+  font:400 13px/1.5 var(--sans);color:var(--ink)}
+.callout b{color:#3aa0e8;font-family:var(--mono);font-size:12px}
+@media(prefers-color-scheme:light){.callout b{color:#0d5aa8}}
+/* each probe diagram gets a titled header row so two tall SVGs read as
+   two labelled panels, not one wall */
+.probe-col .glabel{display:flex;align-items:center;gap:10px;
+  padding-bottom:9px;margin-bottom:2px;border-bottom:1px solid var(--line);color:var(--ink)}
+.probe-col .glabel::after{content:"";flex:1;height:1px;background:var(--line)}
+
+/* ══════════ COLLAPSIBLE SETTINGS SECTIONS ══════════ */
+/* native <details>: keyboard-accessible, zero library. The summary is the
+   engraved header bar; opening reveals the faceplate seamlessly below it. */
+.sect{margin-top:8px}
+.sect > summary{list-style:none}
+.sect > summary::-webkit-details-marker{display:none}
+.inst-sum{cursor:pointer;display:flex;align-items:center;gap:12px;
+  background:var(--panel);border:1px solid var(--line);border-radius:3px;
+  padding:16px 14px;box-shadow:inset 0 1px 0 var(--bevel-hi),0 1px 2px var(--bevel-lo)}
+.inst-sum:focus-visible{outline:2px solid var(--hold-solid);outline-offset:2px}
+details[open] > .inst-sum{border-bottom:0;border-bottom-left-radius:0;border-bottom-right-radius:0;
+  padding-bottom:13px}
+.inst-sum .sum-t{font:600 11px/1 var(--mono);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--faint)}
+.inst-sum .sum-preview{margin-left:auto;font:600 11px/1 var(--mono);letter-spacing:.03em;
+  color:var(--soft);font-variant-numeric:tabular-nums slashed-zero;text-align:right}
+.inst-sum::after{content:"\25B8";flex:0 0 auto;color:var(--faint);font-size:12px;
+  transition:transform .18s ease}
+details[open] > .inst-sum::after{transform:rotate(90deg)}
+details[open] > .inst-sum .sum-preview{opacity:.5}
+.sect > .inst{margin-top:0;border-top:0;border-top-left-radius:0;border-top-right-radius:0}
+.sect > .inst::before{display:none}   /* the top-left corner tick belongs to the summary now */
+@media(prefers-reduced-motion:reduce){.inst-sum::after{transition:none}}
+
+.watersys{display:block;width:190px;max-width:100%;margin:6px auto 2px}
+.ground2{fill:color-mix(in srgb,#7a5230 30%,var(--panel2,#0c1417))}
+.gline{stroke:#7a5230;stroke-width:2}
+.vwall{fill:var(--panel2,#0c1417)}
+.vwall2{fill:none;stroke:var(--ink,#cde);stroke-width:2.5}
+.cap{fill:var(--ink3,#8a8)}
+.wfill{fill:url(#wgrad);transition:y .8s cubic-bezier(.4,0,.2,1),height .8s cubic-bezier(.4,0,.2,1)}
+.wfill.dry{fill:#6b451f}
+.pipe{fill:none;stroke:var(--line,#243);stroke-width:9;stroke-linecap:round;stroke-linejoin:round}
+.flow{fill:none;stroke:#4aa8ec;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;
+      stroke-dasharray:2 12;opacity:0;transition:opacity .3s}
+.watersys.run .flow{opacity:.95;animation:flowup .7s linear infinite}
+@keyframes flowup{to{stroke-dashoffset:-14}}
+.pump{fill:#4a5560;stroke:var(--ink3,#8a8);stroke-width:1.5}
+.pumpdot{fill:var(--ink3,#556)}
+.watersys.run .pumpdot{fill:#3ad07a;animation:pulse .9s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+.vname{fill:var(--ink3,#8a8);font:700 12px var(--mono,monospace);letter-spacing:.1em;text-anchor:middle}
+.sstate{font:800 15px var(--mono,monospace);text-anchor:middle}
+.sstate.ok{fill:#4aa8ec}.sstate.low{fill:var(--warn,#e0900c)}
+.sstate.none{fill:var(--ink3,#8a8);font-weight:600;font-size:12px}
+</style>
+</head>
+<body data-tone="idle">
+<div class="spine" id="spine" aria-hidden="true"></div>
+<div class="wrap">
+
+<header>
+  <div class="lock">
+    <svg class="mark" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+      <rect x=".5" y="4.5" width="23" height="15" fill="none" stroke="currentColor" stroke-width="1" opacity=".5"/>
+      <rect x="1"    y="5" width="3.5" height="14" fill="currentColor" opacity=".26"/>
+      <rect x="19.5" y="5" width="3.5" height="14" fill="currentColor" opacity=".26"/>
+      <g fill="currentColor" opacity=".42">
+        <rect x="6" y="17" width="1" height="2"/><rect x="9"  y="17" width="1" height="2"/>
+        <rect x="12" y="16" width="1" height="3"/><rect x="15" y="17" width="1" height="2"/>
+        <rect x="18" y="17" width="1" height="2"/></g>
+      <rect id="markNeedle" x="11.25" y="2" width="1.5" height="20"/>
+    </svg>
+    <div class="vr"></div>
+    <div>
+      <!-- The wordmark is the HD44780 5x8 bitmap display.rs pushes into the LCD
+           inside the box. No font file. No other product on earth can have it. -->
+      <svg class="wm" width="123" height="21" viewBox="0 0 41 7"
+           shape-rendering="crispEdges" role="img" aria-label="REISBOT">
+      <path d="M0 0h4v1h-4zM0 1h1v1h-1zM4 1h1v1h-1zM0 2h1v1h-1zM4 2h1v1h-1zM0 3h4v1h-4zM0 4h1v1h-1zM2 4h1v1h-1zM0 5h1v1h-1zM3 5h1v1h-1zM0 6h1v1h-1zM4 6h1v1h-1zM6 0h5v1h-5zM6 1h1v1h-1zM6 2h1v1h-1zM6 3h4v1h-4zM6 4h1v1h-1zM6 5h1v1h-1zM6 6h5v1h-5zM12 0h5v1h-5zM14 1h1v1h-1zM14 2h1v1h-1zM14 3h1v1h-1zM14 4h1v1h-1zM14 5h1v1h-1zM12 6h5v1h-5zM19 0h4v1h-4zM18 1h1v1h-1zM18 2h1v1h-1zM19 3h3v1h-3zM22 4h1v1h-1zM22 5h1v1h-1zM18 6h4v1h-4zM24 0h4v1h-4zM24 1h1v1h-1zM28 1h1v1h-1zM24 2h1v1h-1zM28 2h1v1h-1zM24 3h4v1h-4zM24 4h1v1h-1zM28 4h1v1h-1zM24 5h1v1h-1zM28 5h1v1h-1zM24 6h4v1h-4zM31 0h3v1h-3zM30 1h1v1h-1zM34 1h1v1h-1zM30 2h1v1h-1zM34 2h1v1h-1zM30 3h1v1h-1zM34 3h1v1h-1zM30 4h1v1h-1zM34 4h1v1h-1zM30 5h1v1h-1zM34 5h1v1h-1zM31 6h3v1h-3zM36 0h5v1h-5zM38 1h1v1h-1zM38 2h1v1h-1zM38 3h1v1h-1zM38 4h1v1h-1zM38 5h1v1h-1zM38 6h1v1h-1z"/>
+      </svg>
+      <div class="wmsub" id="wmsub">Pump guard</div>
+    </div>
+  </div>
+  <div class="link"><span class="dot" id="dot"></span><span id="linktxt">connecting</span></div>
+</header>
+
+<!-- ══════════════ NOW ══════════════ -->
+<section id="tab-now">
+  <div class="inst hero" id="hero" data-tone="idle">
+    <div class="face">
+      <div class="chips">
+        <span class="chip" id="mode">—</span>
+        <span class="chip" id="profchip">—</span>
+      </div>
+      <div class="state" id="state">···</div>
+      <p class="why" id="why">contacting the controller</p>
+      <div class="ann">
+        <span class="an" id="anArm">ARMED</span>
+        <span class="an" id="anRun">RUN</span>
+        <span class="an" id="anTrip">TRIP</span>
+        <span class="an" id="anDry">DRY</span>
+        <span class="an" id="anLink">LINK</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="banner" id="benchBanner" hidden>
+    <b>Bench profile active</b>
+    These limits are for a 10&ndash;20&nbsp;V test supply, not the pump.
+  </div>
+
+  <!-- Volts, amps and watts come FIRST, above the voltage-window
+       instrument. They are the three numbers this page exists to show, and
+       sitting below the instrument they landed behind the fixed action bar
+       at 390x844 - the live current could not be read without scrolling, on
+       the one screen size this is actually used at. Ordering fixes that
+       structurally, rather than budgeting pixels against a bench banner that
+       appears and disappears with the profile. -->
+  <div class="nums">
+    <div class="inst n"><div class="face">
+      <div class="rd big"><span class="g">888.8</span><span class="val" id="v">—</span></div>
+      <span class="u eng"><span class="trend" id="vtrend"></span>Volts</span>
+    </div></div>
+    <div class="inst n"><div class="face">
+      <div class="rd"><span class="g">88.88</span><span class="val" id="a">—</span></div>
+      <span class="u eng">Amps</span>
+    </div></div>
+    <div class="inst n"><div class="face">
+      <div class="rd"><span class="g">8888</span><span class="val" id="w">—</span></div>
+      <span class="u eng">Watts</span>
+    </div></div>
+  </div>
+
+  <div class="inst"><div class="face">
+    <h2 class="eng">System</h2>
+    <svg id="watersys" class="watersys" viewBox="0 0 200 404" role="img" aria-label="Well, pump and tank">
+      <defs>
+        <linearGradient id="wgrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#4aa8ec"/><stop offset="1" stop-color="#1663b0"/>
+        </linearGradient>
+        <clipPath id="tankclip"><rect x="57" y="26" width="86" height="80" rx="4"/></clipPath>
+        <clipPath id="wellclip"><rect x="80" y="220" width="40" height="158"/></clipPath>
+      </defs>
+
+      <!-- ground -->
+      <rect x="0" y="214" width="200" height="190" class="ground2"/>
+      <line x1="0" y1="214" x2="200" y2="214" class="gline"/>
+
+      <!-- riser pipe: pump up into the tank -->
+      <path class="pipe" d="M100 360 V128 a10 10 0 0 0 -10 -10 H74"/>
+      <path class="flow" d="M100 360 V128 a10 10 0 0 0 -10 -10 H74"/>
+
+      <!-- TANK (up) -->
+      <rect x="53" y="20" width="94" height="92" rx="8" class="vwall"/>
+      <rect x="86" y="12" width="28" height="10" rx="2" class="cap"/>
+      <g clip-path="url(#tankclip)"><rect id="tankwater" class="wfill" x="57" y="84" width="86" height="22"/></g>
+      <rect x="53" y="20" width="94" height="92" rx="8" class="vwall2"/>
+      <text x="100" y="60" class="vname">TANK</text>
+      <text id="tanks" x="100" y="80" class="sstate none">--</text>
+
+      <!-- WELL (down, in the ground) -->
+      <rect x="76" y="216" width="48" height="166" rx="3" class="vwall"/>
+      <g clip-path="url(#wellclip)"><rect id="wellwater" class="wfill" x="80" y="352" width="40" height="26"/></g>
+      <rect x="76" y="216" width="48" height="166" rx="3" class="vwall2"/>
+      <rect x="84" y="350" width="32" height="24" rx="2" class="pump"/>
+      <circle cx="100" cy="362" r="4" class="pumpdot"/>
+      <text x="150" y="292" class="vname" text-anchor="start">WELL</text>
+      <text id="wells" x="150" y="312" class="sstate none" text-anchor="start">--</text>
+    </svg>
+  </div></div>
+
+  <div class="inst" id="vw">
+    <div class="face">
+      <h2 class="eng">Voltage window</h2>
+      <div class="hr" id="vwHead">—</div>
+      <div class="hrl eng" id="vwHeadL">&nbsp;</div>
+      <div class="hrk eng" id="vwKill" hidden>—</div>
+      <div class="bandwrap">
+        <div class="mlabel" id="mlabel">—</div>
+        <div class="band" id="band">
+          <div class="zone danger" id="zdlow"></div>
+          <div class="zone edge"   id="zlow"></div>
+          <div class="zone safe"   id="zsafe"></div>
+          <div class="zone edge"   id="zhigh"></div>
+          <div class="zone danger" id="zdhigh"></div>
+          <div class="zone kill"   id="zkill" hidden></div>
+          <div class="tick" id="tlow"></div>
+          <div class="tick" id="thigh"></div>
+          <div class="rl"   id="vwRed" hidden></div>
+          <div class="now"  id="marker"></div>
+          <div class="range" id="vwRange" hidden></div>
+        </div>
+        <div class="ruler" id="vwRuler"></div>
+        <div class="bandkey"><span id="kl">—</span><span id="kh">—</span></div>
+        <div class="mgn" id="vwMargin" hidden></div>
+        <p class="note" id="bandnote"></p>
+        <div class="row"><span class="k">Current limits</span><span class="v" id="climits">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="inst"><div class="face">
+    <h2 class="eng">Today</h2>
+    <div class="row"><span class="k">Ran today</span><span class="v" id="runtime">—</span></div>
+    <div class="row"><span class="k">Starts</span><span class="v" id="starts">—</span></div>
+    <div class="row"><span class="k">Energy</span><span class="v" id="kwh">—</span></div>
+    <div class="row"><span class="k">Dry strikes</span><span class="v" id="strikes">—</span></div>
+  </div></div>
+
+  <div class="inst"><div class="face">
+    <h2 class="eng">Health</h2>
+    <div class="row"><span class="k">Power meter</span><span class="v" id="hmeter">—</span></div>
+    <div class="row"><span class="k">Display</span><span class="v" id="hlcd">—</span></div>
+    <div class="row"><span class="k">Profile</span><span class="v" id="hprof">—</span></div>
+    <div class="row"><span class="k">Controller running for</span><span class="v" id="huptime">—</span></div>
+    <p class="note">Mode is set by the switch on the panel — the handle position is the mode, so
+       this page can only show it.</p>
+  </div></div>
+</section>
+
+<!-- ══════════════ SETUP ══════════════ -->
+<section id="tab-setup" hidden>
+  <div class="inst"><div class="face">
+    <h2 class="eng">Commissioning</h2>
+    <p class="intro">
+      Runs the pump and watches it, then works out the protection thresholds from what it
+      sees. Takes about four minutes. Do it once, on a sunny day, with someone at the outlet.
+    </p>
+
+    <div class="step" id="s1"><div class="num">1</div><div>
+      <h3>Array voltage, unloaded</h3>
+      <p id="s1p">The pump must be stopped. This reads what the array produces with nothing
+         drawing from it — the voltage that damages pumps.</p>
+      <div class="big" id="ocv" hidden>—</div>
+    </div></div>
+
+    <div class="step" id="s2"><div class="num">2</div><div>
+      <h3>Start the pump</h3>
+      <p>Go and watch the outlet. Come back when water is flowing.</p>
+    </div></div>
+
+    <div class="step" id="s3"><div class="num">3</div><div>
+      <h3>Learning</h3>
+      <p id="s3p">Watching the working current for three minutes.</p>
+      <div class="prog"><i id="bar"></i></div>
+      <div class="row"><span class="k">Samples</span><span class="v" id="samples">0</span></div>
+      <div class="row"><span class="k">Average</span><span class="v" id="avg">—</span></div>
+    </div></div>
+
+    <div class="step" id="s4"><div class="num">4</div><div>
+      <h3>Confirm water</h3>
+      <p>The controller cannot see water. Only you can.</p>
+    </div></div>
+
+    <div class="step" id="s5"><div class="num">5</div><div>
+      <h3>Thresholds</h3>
+      <p>Worked out from the run. Voltage trips are left alone — those come from the pump's
+         rating, not from what it happened to do today.</p>
+      <div id="result" hidden>
+        <div class="row"><span class="k">Overcurrent trip</span><span class="v" id="rimax">—</span></div>
+        <div class="row"><span class="k">Dry below</span><span class="v" id="rdrya">—</span></div>
+        <div class="row"><span class="k">Dry above volts</span><span class="v" id="rdryv">—</span></div>
+      </div>
+    </div></div>
+
+    <button class="ghost" id="wizBtn" style="margin-top:14px" onclick="wizard()">Begin</button>
+    <div class="msg" id="wizmsg"></div>
+  </div></div>
+</section>
+
+<!-- ══════════════ WIRING ══════════════ -->
+<section id="tab-wire" hidden>
+  <p class="intro" style="margin:2px 0 4px">The physical side: where every
+  wire lands on the header, and how the three-rod probes sit down the well and
+  in the tank.</p>
+
+  <div class="inst"><div class="face">
+    <h2 class="eng">GPIO map</h2>
+    <p class="intro">The 40-pin header as it sits, pin 1 top-left (nearest the SD
+    card). If a wire comes off, this is where it goes back.</p>
+    <div class="callout"><b>WATER SENSORS</b> &mdash; TANK on pin 38, WELL on pin 40;
+    each relay C to any GND (pin 39 is right next door).</div>
+    <div class="pinmap">
+      <div class="prow"><span class="plab pwr3">3V3</span><span class="pno">1</span><span class="pno">2</span><span class="plab pwr5">5V</span></div>
+      <div class="prow"><span class="plab io">LCD SDA</span><span class="pno">3</span><span class="pno">4</span><span class="plab pwr5">5V in</span></div>
+      <div class="prow"><span class="plab io">LCD SCL</span><span class="pno">5</span><span class="pno">6</span><span class="plab gnd">GND</span></div>
+      <div class="prow"><span class="plab free">free</span><span class="pno">7</span><span class="pno">8</span><span class="plab free">free</span></div>
+      <div class="prow"><span class="plab gnd">GND</span><span class="pno">9</span><span class="pno">10</span><span class="plab free">free</span></div>
+      <div class="prow"><span class="plab io">RELAY→contactor</span><span class="pno">11</span><span class="pno">12</span><span class="plab free">free</span></div>
+      <div class="prow"><span class="plab io">STOP btn</span><span class="pno">13</span><span class="pno">14</span><span class="plab gnd">GND</span></div>
+      <div class="prow"><span class="plab free">free</span><span class="pno">15</span><span class="pno">16</span><span class="plab io">START btn</span></div>
+      <div class="prow"><span class="plab pwr3">3V3</span><span class="pno">17</span><span class="pno">18</span><span class="plab free">free</span></div>
+      <div class="prow"><span class="plab io">LED grn</span><span class="pno">19</span><span class="pno">20</span><span class="plab gnd">GND</span></div>
+      <div class="prow"><span class="plab free">free</span><span class="pno">21</span><span class="pno">22</span><span class="plab free">free</span></div>
+      <div class="prow"><span class="plab free">free</span><span class="pno">23</span><span class="pno">24</span><span class="plab free">free</span></div>
+      <div class="prow"><span class="plab gnd">GND</span><span class="pno">25</span><span class="pno">26</span><span class="plab io">LED red</span></div>
+      <div class="prow"><span class="plab free">free</span><span class="pno">27</span><span class="pno">28</span><span class="plab free">free</span></div>
+      <div class="prow"><span class="plab io">SWITCH auto</span><span class="pno">29</span><span class="pno">30</span><span class="plab gnd">GND</span></div>
+      <div class="prow"><span class="plab io">SWITCH off</span><span class="pno">31</span><span class="pno">32</span><span class="plab io">PROFILE jmp</span></div>
+      <div class="prow"><span class="plab free">free</span><span class="pno">33</span><span class="pno">34</span><span class="plab gnd">GND</span></div>
+      <div class="prow"><span class="plab free">free</span><span class="pno">35</span><span class="pno">36</span><span class="plab free">free</span></div>
+      <div class="prow"><span class="plab free">free</span><span class="pno">37</span><span class="pno">38</span><span class="plab sensor">TANK sensor</span></div>
+      <div class="prow"><span class="plab gnd">GND (relay C)</span><span class="pno">39</span><span class="pno">40</span><span class="plab sensor">WELL sensor</span></div>
+    </div>
+    <div class="pinkey">
+      <span><i class="k-sensor"></i>water sensor</span>
+      <span><i class="k-io"></i>REISBOT</span>
+      <span><i class="k-pwr5"></i>5V</span>
+      <span><i class="k-pwr3"></i>3V3</span>
+      <span><i class="k-gnd"></i>GND</span>
+      <span><i class="k-free"></i>free</span>
+    </div>
+  </div></div>
+
+  <div class="inst"><div class="face">
+    <h2 class="eng">Probe placement</h2>
+    <p class="intro">Each SSRC-04 uses three rods of different lengths from one
+    mount. <b>B</b> is the longest — always in water, the common reference.
+    Water "makes" a level when it rises to touch a rod's tip. The gap between
+    <b>L</b> and <b>U</b> is the hysteresis that stops the relay chattering.</p>
+
+    <div class="probes">
+      <div class="probe-col">
+        <div class="glabel">Well — dry protection</div>
+        <svg viewBox="0 0 176 220" class="probe">
+  <rect x="34" y="18" width="92" height="196" rx="3" class="vessel-o"/>
+  <rect x="36" y="70" width="88" height="142" class="water-f"/>
+  <line x1="36" y1="70" x2="124" y2="70" class="surf"/>
+  <text x="128" y="73" class="slab">level now</text>
+  <rect x="52" y="14" width="56" height="6" rx="2" class="mount"/>
+  <!-- U shortest, L medium, B longest -->
+  <line x1="62" y1="20" x2="62" y2="96"  class="rod"/><circle cx="62" cy="96" r="3" class="tip"/>
+  <line x1="80" y1="20" x2="80" y2="150" class="rod"/><circle cx="80" cy="150" r="3" class="tip"/>
+  <line x1="98" y1="20" x2="98" y2="196" class="rod"/><circle cx="98" cy="196" r="3" class="tip"/>
+  <text x="58"  y="110" class="rlab">U</text>
+  <text x="76"  y="164" class="rlab">L</text>
+  <text x="94"  y="192" class="rlab">B</text>
+  <rect x="60" y="198" width="40" height="14" rx="2" class="pump"/>
+  <text x="80" y="209" class="plab2">PUMP</text>
+</svg>
+        <ul class="rkey">
+          <li><b>B</b> deepest, above the pump — always submerged, reference</li>
+          <li><b>L</b> minimum safe level — drop below and the pump STOPS (dry)</li>
+          <li><b>U</b> recharge level — well must refill to here to restart</li>
+        </ul>
+        <p class="rnote">Reads <b>WATER</b> while the surface is above L. As the
+        well draws down past L it opens (dry) and the pump waits until the
+        water recovers to U. Keep B above the pump so the motor stays cooled.</p>
+      </div>
+
+      <div class="probe-col">
+        <div class="glabel">Tank — fill control</div>
+        <svg viewBox="0 0 160 220" class="probe">
+  <rect x="30" y="30" width="100" height="184" rx="4" class="vessel-o"/>
+  <rect x="32" y="120" width="96" height="92" class="water-f"/>
+  <line x1="32" y1="120" x2="128" y2="120" class="surf"/>
+  <path d="M20 26 h44 v10" class="inlet"/><text x="10" y="24" class="slab">from pump</text>
+  <rect x="52" y="26" width="56" height="6" rx="2" class="mount"/>
+  <line x1="62" y1="32" x2="62" y2="60"  class="rod"/><circle cx="62" cy="60" r="3" class="tip"/>
+  <line x1="80" y1="32" x2="80" y2="150" class="rod"/><circle cx="80" cy="150" r="3" class="tip"/>
+  <line x1="98" y1="32" x2="98" y2="200" class="rod"/><circle cx="98" cy="200" r="3" class="tip"/>
+  <text x="58"  y="74"  class="rlab">U</text>
+  <text x="76"  y="164" class="rlab">L</text>
+  <text x="94"  y="196" class="rlab">B</text>
+</svg>
+        <ul class="rkey">
+          <li><b>B</b> at the bottom — always submerged, reference</li>
+          <li><b>L</b> restart level — pump resumes filling when it drops here</li>
+          <li><b>U</b> full level, near the top — pump STOPS when reached</li>
+        </ul>
+        <p class="rnote">Reads <b>FULL</b> when the surface reaches U; the pump
+        stops (Auto only). It empties to L before refilling, so it fills in
+        slow cycles instead of switching on and off at the brim.</p>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ══════════════ SETTINGS ══════════════ -->
+<section id="tab-set" hidden>
+  <div class="locked-note" id="lockNote" hidden>
+    <b>Sealed — production limits</b>
+    Voltage trips come from the pump's datasheet and cannot be edited.
+    Current and dry-run values are set by the setup wizard from real
+    measurements, not by hand. Switch to the bench profile to experiment.
+  </div>
+
+  <form id="form" onsubmit="saveSettings(event)">
+    <details class="sect" open>
+      <summary class="inst-sum"><span class="sum-t eng">Voltage protection</span><span class="sum-preview" id="sumV">&mdash;</span></summary>
+      <div class="inst"><div class="face">
+      <div class="grid2">
+        <label><span>Trip above (V)</span><input name="v_high_trip" type="number" step="0.1"></label>
+        <label><span>Trip below (V)</span><input name="v_low_trip" type="number" step="0.1"></label>
+        <label><span>Restart under (V)</span><input name="v_high_reset" type="number" step="0.1"></label>
+        <label><span>Restart over (V)</span><input name="v_low_reset" type="number" step="0.1"></label>
+      </div>
+      <p class="note">The restart window sits inside the trip window on purpose. Without that
+        gap a marginal array chatters the contactor on and off.</p>
+    </div></div>
+    </details>
+
+    <details class="sect">
+      <summary class="inst-sum"><span class="sum-t eng">Current</span><span class="sum-preview" id="sumI">&mdash;</span></summary>
+      <div class="inst"><div class="face">
+      <div class="grid2">
+        <label><span>Max current (A)</span><input name="i_max" type="number" step="0.1"></label>
+        <label><span>Allow for (s)</span><input name="i_max_seconds" type="number"></label>
+      </div>
+    </div></div>
+    </details>
+
+    <details class="sect">
+      <summary class="inst-sum"><span class="sum-t eng">Dry running</span><span class="sum-preview" id="sumDry">&mdash;</span></summary>
+      <div class="inst"><div class="face">
+      <label><span>Detection</span>
+        <select name="dry_enabled"><option value="false">off — collect data only</option>
+        <option value="true">on — stop the pump</option></select></label>
+      <div class="grid2">
+        <label><span>Dry below (A)</span><input name="dry_amps" type="number" step="0.1"></label>
+        <label><span>while above (V)</span><input name="dry_volts" type="number" step="0.1"></label>
+        <label><span>For (s)</span><input name="dry_seconds" type="number"></label>
+        <label><span>Grace (s)</span><input name="dry_grace_seconds" type="number"></label>
+      </div>
+      <p class="note">Both conditions must hold. Weak sun drops the current too — but it drops
+        the voltage with it, which is what tells the two apart.</p>
+    </div></div>
+    </details>
+
+    <details class="sect">
+      <summary class="inst-sum"><span class="sum-t eng">Timing</span><span class="sum-preview" id="sumTiming">&mdash;</span></summary>
+      <div class="inst"><div class="face">
+      <div class="grid2">
+        <label><span>Settle readings</span><input name="settle_readings" type="number" min="1"></label>
+        <label><span>Retry after (s)</span><input name="retry_seconds" type="number" min="0"></label>
+        <label><span>Max hand run (min)</span><input name="max_run_minutes" type="number" min="0"></label>
+        <label><span>Meter errors allowed</span><input name="meter_error_limit" type="number" min="1"></label>
+        <label><span>Forgive strike after (min)</span><input name="dry_forgive_minutes" type="number" min="0"></label>
+      </div>
+      <p class="note"><b>Max hand run</b> ends a run you started by hand after this long, so a
+        pump left running by a closed phone does not pump all afternoon. It does not apply in
+        AUTO — that mode exists to work an unattended day, and overvolts, a dry well or a dead
+        meter each stop it on their own. 0 turns the limit off.</p>
+      <p class="note"><b>Meter errors allowed</b> is how many silent readings in a row become a
+        meter fault. <b>Forgive strike after</b> is how long the pump must run cleanly before one
+        dry-run strike is dropped.</p>
+    </div></div>
+    </details>
+
+    <button class="ghost" type="submit" style="margin-top:10px">Save settings</button>
+    <div class="msg" id="setmsg"></div>
+  </form>
+
+  <div class="inst" id="profiles"><div class="face">
+    <h2 class="eng">Threshold profiles</h2>
+    <p class="note" style="margin-top:0">
+      One action that rewrites every limit at once. Use this to put the real
+      pump limits back after testing, rather than typing seven numbers and
+      hoping.
+    </p>
+
+    <div class="prof-now">Active profile: <b id="profNow">—</b></div>
+
+    <label class="prof-pass"><span>Admin password</span>
+      <span class="passrow">
+        <input id="profPass" type="password" autocomplete="off"
+               placeholder="required - stops a stray tap">
+        <button type="button" class="ghost" id="peek" onclick="
+          const i=$('profPass'); i.type = i.type==='password' ? 'text' : 'password';
+          this.textContent = i.type==='password' ? 'show' : 'hide';">show</button>
+      </span></label>
+
+    <p class="warn-order">
+      <b>Set the profile before running the setup wizard.</b> A profile
+      rewrites <code>i_max</code>, <code>dry_amps</code> and
+      <code>dry_volts</code> as well, so applying one afterwards discards the
+      numbers the wizard measured from your actual pump.
+    </p>
+    <div class="msg" id="profmsg"></div>
+
+    <div class="prof-grid">
+      <div class="prof">
+        <h3>Production &mdash; the 138&nbsp;V pump<span class="badge" id="badgePump" hidden>ACTIVE</span></h3>
+        <ul>
+          <li>Runs between <b>118&ndash;138&nbsp;V</b></li>
+          <li>Trips above <b>145&nbsp;V</b> &middot; below <b>112&nbsp;V</b></li>
+          <li>Current limit <b>13&nbsp;A</b></li>
+        </ul>
+        <p class="why">The card is destroyed above 150&nbsp;V and self-protects
+        below 110&nbsp;V, so these stop short of both.</p>
+        <button class="ghost" id="btnProfPump" onclick="setProfile('pump')">Use production</button>
+      </div>
+
+      <div class="prof">
+        <h3>Bench &mdash; low voltage supply<span class="badge" id="badgeBench" hidden>ACTIVE</span></h3>
+        <ul>
+          <li>Runs between <b>10&ndash;17&nbsp;V</b></li>
+          <li>Trips above <b>18&nbsp;V</b> &middot; below <b>9&nbsp;V</b></li>
+          <li>Current limit <b>5&nbsp;A</b></li>
+        </ul>
+        <p class="why">For testing on your 10&ndash;20&nbsp;V supply. These
+        limits can never be satisfied by a real array.</p>
+        <button class="ghost" id="btnProfBench" onclick="setProfile('bench')">Use bench</button>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ══════════════ LOG ══════════════ -->
+<section id="tab-log" hidden>
+  <div class="inst"><div class="face">
+    <h2 class="eng">Recent events</h2>
+    <div id="events"><div class="empty">Nothing has gone wrong yet.</div></div>
+  </div></div>
+  <div class="inst"><div class="face">
+    <h2 class="eng">Data</h2>
+    <a class="ghost" href="/history.csv" download
+       style="text-align:center;text-decoration:none">Download history CSV</a>
+    <p class="note">Every reading while running, logged every five seconds. Open it in a
+      spreadsheet to see kWh against hours, or send it to me to tune the dry-run thresholds.</p>
+  </div></div>
+</section>
+
+</div>
+
+<!-- ONE control, ONE place, on every tab, at every scroll position, always. -->
+<div class="actbar" id="stopbar" data-act="inert">
+  <div class="msg" id="cmdmsg"></div>
+  <button class="act" id="btnStop" onclick="cmd('/stop',null,this)" hidden><span class="lbl">STOP</span></button>
+  <button class="act" id="btnStart" onclick="cmd('/start',null,this)"><span class="lbl">START</span><span class="sub"></span></button>
+</div>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" aria-selected="true"  onclick="tab('now',this)">Now</button>
+  <button role="tab" aria-selected="false" onclick="tab('setup',this)">Setup</button>
+  <button role="tab" aria-selected="false" onclick="tab('wire',this)">Wiring</button>
+  <button role="tab" aria-selected="false" onclick="tab('set',this)">Settings</button>
+  <button role="tab" aria-selected="false" onclick="tab('log',this)">Log</button>
+</nav>
+
+<script>
+const $ = id => document.getElementById(id);
+let live = null, touched = false;
+
+/* ── liveness ────────────────────────────────────────────────────────────
+   The page must never imply the pump is off when it is running, or the
+   reverse. Three missed polls and every instantaneous reading becomes a
+   dash: a stale number in the place a live one goes is the one lie this
+   device cannot afford.                                                   */
+const STALE_MS = 6000;               // three missed 2s polls
+let lastOk = 0, lastCanStop = false, bootAt = Date.now();
+const isStale = () => !live || (Date.now() - lastOk) > STALE_MS;
+
+let prevVolts = null, shownRefusal = null, busy = false;
+const DAMAGE_V = 150;                // pump controller card, datasheet constant
+
+function tab(name, el){
+  ['now','setup','wire','set','log'].forEach(t => $('tab-'+t).hidden = (t !== name));
+  document.querySelectorAll('nav.tabs button')
+          .forEach(b => b.setAttribute('aria-selected', b === el));
+  if (name !== 'set') touched = false;   // or one keystroke freezes the form forever
+  window.scrollTo(0,0);
+  if (name === 'now') rulerKey = '';     // rebuild once the scale has a width again
+}
+
+/* READY (armed, stopped) and RUNNING (1500 W moving) must never share a colour. */
+const TONE = {running:'run', ready:'ready', starting:'warn', waiting:'warn',
+              tripped:'bad', lockout:'bad', fault:'bad', off:'idle'};
+
+function hms(s){
+  s = Math.max(0, Math.floor(s));
+  const h = Math.floor(s/3600), m = Math.floor(s%3600/60);
+  return h ? `${h}h ${String(m).padStart(2,'0')}m` : `${m}m ${String(s%60).padStart(2,'0')}s`;
+}
+
+const profLabel = p => p === 'pump' ? 'PRODUCTION — 138 V pump'
+                     : p === 'bench' ? 'BENCH — 10-20 V supply' : '—';
+
+/* The countdowns are already on the wire every 2s. `age` advances them
+   between polls; when the pump is not runnable why_not_ready wins over
+   detail, because detail is written once at trip time and never updates. */
+function heroWhy(){
+  if (!live) return 'no contact with the controller yet';
+  if (isStale()) return `last reading ${hms((Date.now()-lastOk)/1000)} ago — this is not live`;
+  const d = live, age = Math.floor((Date.now()-lastOk)/1000);
+  if (d.state === 'lockout'){
+    const left = Math.max(0, d.lockout_remaining - age);
+    return `${d.detail || 'well is recovering'} · ${hms(left)} left`;
+  }
+  if (d.retry_in !== null && d.retry_in !== undefined){
+    const left = Math.max(0, d.retry_in - age);
+    return `${d.detail || d.why_not_ready} · retrying in ${left}s`;
+  }
+  // uptime is 0 for the whole run on this controller build (running_since is
+  // not surviving the loop). Never print a duration we cannot vouch for.
+  if (d.state === 'running')
+    return d.uptime > 0 ? `running ${hms(d.uptime + age)}` : (d.detail || 'running');
+  if (d.state === 'ready' && d.can_start) return 'ready — press START';
+  if (!d.can_start && d.why_not_ready) return d.why_not_ready;
+  return d.detail || 'all good';
+}
+
+/* ── the single morphing action control ──────────────────────────────────
+   START when the pump can start, STOP when it is running or starting,
+   clearly inert with the reason when neither is possible. Never two.
+   Selection order preserves the stale contract exactly: STOP always
+   survives loss of contact.                                              */
+const ARM_MS = 700;
+let actNow = null, armAt = 0;
+
+function inertReason(){
+  if (isStale()) return 'NO CONTACT';
+  const d = live;
+  if (!d) return 'WAITING FOR THE CONTROLLER';
+  const age = Math.floor((Date.now()-lastOk)/1000);
+  if (d.mode === 'OFF') return 'SWITCH IS OFF';
+  if (d.lockout_remaining > 0)
+    return 'LOCKED ' + hms(Math.max(0, d.lockout_remaining - age));
+  if (d.retry_in !== null && d.retry_in !== undefined)
+    return 'RETRY IN ' + Math.max(0, d.retry_in - age) + 'S';
+  return (d.why_not_ready || 'NOT READY').toUpperCase().slice(0,34);
+}
+
+function morph(){
+  if (busy) return;                       // a command owns the button meanwhile
+  const stale = isStale(), d = live;
+  const act = (stale && lastCanStop)      ? 'stop'
+            : (d && d.can_stop)           ? 'stop'
+            : (d && d.can_start && !stale) ? 'start'
+            : 'inert';
+
+  const bar = $('stopbar'), start = $('btnStart'), stop = $('btnStop');
+  if (act !== actNow){
+    actNow = act;
+    bar.dataset.act = act;
+    stop.hidden  = (act !== 'stop');
+    start.hidden = (act === 'stop');
+    const shown = ((act === 'stop') ? stop : start).firstElementChild;
+    shown.classList.remove('swap'); void shown.offsetWidth; shown.classList.add('swap');
+    if (act === 'start'){                 // arm: START and STOP share pixels
+      armAt = Date.now();
+      start.setAttribute('data-arming','');
+      setTimeout(() => { if (actNow === 'start') start.removeAttribute('data-arming'); }, ARM_MS);
+    } else {
+      start.removeAttribute('data-arming');
+    }
+  }
+
+  const lbl = start.firstElementChild;
+  const want = (act === 'inert') ? 'START UNAVAILABLE' : 'START';
+  if (lbl.textContent !== want) lbl.textContent = want;
+  const sub = start.lastElementChild, why = (act === 'inert') ? inertReason() : '';
+  if (sub.textContent !== why) sub.textContent = why;
+
+  start.disabled = (act === 'inert') || (Date.now() - armAt < ARM_MS);
+  stop.disabled  = false;                 // STOP is never armed, never delayed
+}
+
+/* Runs every second regardless of the network, so countdowns move, staleness
+   is noticed between polls, and STOP never depends on a successful fetch. */
+function refresh(){
+  const stale = isStale();
+
+  if (!live && Date.now() - bootAt < STALE_MS){ morph(); return; }  // first poll
+  if (!stale){
+    document.body.classList.remove('stale');
+    $('why').textContent = heroWhy();
+    morph();
+    return;
+  }
+
+  document.body.classList.add('stale');
+  document.body.dataset.tone = 'stale';
+  $('dot').classList.remove('up');
+  $('linktxt').textContent = 'no contact';
+  $('hero').dataset.tone = 'stale';
+  $('state').textContent = 'NO CONTACT';
+  $('why').textContent   = heroWhy();
+  $('v').textContent = '—'; $('a').textContent = '—'; $('w').textContent = '—';
+  $('vtrend').textContent = '';
+  $('marker').hidden = true; $('mlabel').hidden = true;
+  $('bandnote').hidden = false;
+  $('bandnote').textContent = 'No reading from the controller.';
+  $('btnStart').disabled = true;
+  // every lamp dark is the strongest NO CONTACT signal, and the one thing on
+  // this page a stale reading cannot fake
+  lamps(0,0,0,0,0);
+  $('vwHead').className = 'hr n';
+  $('vwHead').textContent = '—';
+  $('vwHeadL').textContent = 'No reading';
+  $('vwKill').hidden = true;
+  $('vwRange').hidden = true; vBuf.length = 0;
+  $('markNeedle').style.transform = 'translateX(0px)';
+  morph();
+}
+
+function lamps(arm, run, trip, dry, link){
+  $('anArm').className  = 'an' + (arm  ? (arm === 2 ? ' on a' : ' on') : '');
+  $('anRun').className  = 'an' + (run  ? ' on' : '');
+  $('anTrip').className = 'an' + (trip ? ' on r' : '');
+  $('anDry').className  = 'an' + (dry  ? ' on a' : '');
+  $('anLink').className = 'an' + (link ? ' on' : '');
+}
+
+/* ── the ruler: what turns a progress bar into a calibrated instrument ── */
+let rulerKey = '';
+function ruler(min, max, pc){
+  const key = min.toFixed(2)+'/'+max.toFixed(2);
+  if (key === rulerKey) return;
+  const r = $('vwRuler');
+  const W = max - min;
+  const steps = [1,2,5,10,20,25,50];
+  const step = steps.find(s => W/s <= 12 && W/s >= 5) || 50;
+  const px = (step/W) * (r.clientWidth || 325);
+  if (!r.clientWidth) return;             // hidden tab: rebuild when it is shown
+  rulerKey = key;
+  const every = px < 30 ? 2 : 1;
+  r.textContent = '';
+  const first = Math.ceil(min/(step/2))*(step/2);
+  for (let x = first; x <= max + 1e-6; x += step/2){
+    const p = pc(x);
+    if (p <= 0.4 || p >= 99.6) continue;  // never clip the gutter
+    const major = Math.abs(x/step - Math.round(x/step)) < 1e-6;
+    const i = document.createElement('i');
+    i.className = major ? 'mj' : 'mn';
+    i.style.left = p + '%';
+    r.appendChild(i);
+    if (major && Math.round(x/step) % every === 0){
+      const b = document.createElement('b');
+      b.style.left = p + '%';
+      b.textContent = String(Math.round(x));
+      r.appendChild(b);
+    }
+  }
+}
+
+/* A needle sitting at 143V is a different fact from a needle that has been
+   swinging 138-147 all afternoon, and only one of those is about to kill a
+   pump. 30 samples at 2s = the last minute.                              */
+const RANGE_N = 30;
+let vBuf = [], lastScale = '';
+
+function paint(d){
+  live = d;
+  lastCanStop = !!d.can_stop;
+
+  $('dot').classList.add('up'); $('linktxt').textContent = 'live';
+  document.body.classList.remove('stale');
+
+  const s = d.settings;
+  const prof = String(s.profile || '').toLowerCase();
+  const isProd = prof === 'pump';
+
+  $('hero').dataset.tone = TONE[d.state] || 'idle';
+  $('state').textContent = d.state_label;
+  $('why').textContent   = heroWhy();
+  $('mode').textContent  = d.mode;
+  $('profchip').textContent = isProd ? 'PRODUCTION' : (prof ? prof.toUpperCase() : '—');
+  $('wmsub').textContent = isProd ? 'Pump guard · 138 V' : 'Pump guard · bench';
+  $('benchBanner').hidden = isProd;
+
+  // Which threshold set is live. Worth seeing at a glance: bench limits on a
+  // real array look like a pump that simply refuses to start.
+  // Production limits are constants - the server forces them regardless, so
+  // this only stops someone wasting time typing into a field that will not
+  // take. The lock is in web.rs, not here.
+  const note = $('lockNote');
+  if (note) note.hidden = !isProd;
+  ['v_high_trip','v_low_trip','v_high_reset','v_low_reset','i_max','dry_amps','dry_volts']
+    .forEach(n => { const el = document.querySelector(`[name="${n}"]`);
+                    if (el) el.disabled = !!isProd; });
+
+  const pn = $('profNow');
+  if (pn) pn.textContent = profLabel(prof);
+  // Re-applying the live profile only destroys the wizard-measured numbers.
+  $('btnProfPump').disabled  = isProd;
+  $('btnProfBench').disabled = (prof === 'bench');
+  $('badgePump').hidden  = !isProd;
+  $('badgeBench').hidden = (prof !== 'bench');
+
+  const meter = d.meter_ok !== false;
+  document.body.classList.toggle('noread', !meter);
+  if (meter){
+    $('v').textContent = d.volts.toFixed(1);
+    $('a').textContent = d.amps.toFixed(2);
+    $('w').textContent = Math.round(d.watts);
+    $('vtrend').textContent = (prevVolts === null) ? ''
+      : (d.volts - prevVolts > .3) ? '▲' : (prevVolts - d.volts > .3) ? '▼' : '';
+    prevVolts = d.volts;
+  } else {
+    $('v').textContent = '—'; $('a').textContent = '—'; $('w').textContent = '—';
+    $('vtrend').textContent = '';
+  }
+
+  // Where the array sits inside the window it is allowed to run in.
+  const lo = s.v_low_trip, hi = s.v_high_trip;
+  const span = hi - lo, pad = span * 0.35, min = lo - pad, max = hi + pad, W = max - min;
+  const pc = x => Math.max(0, Math.min(100, (x - min) / W * 100));
+
+  $('zdlow').style.cssText  = `left:0;width:${pc(lo)}%`;
+  $('zlow').style.cssText   = `left:${pc(lo)}%;width:${pc(s.v_low_reset)-pc(lo)}%`;
+  $('zsafe').style.cssText  = `left:${pc(s.v_low_reset)}%;width:${pc(s.v_high_reset)-pc(s.v_low_reset)}%`;
+  $('zhigh').style.cssText  = `left:${pc(s.v_high_reset)}%;width:${pc(hi)-pc(s.v_high_reset)}%`;
+  $('zdhigh').style.cssText = `left:${pc(hi)}%;width:${100-pc(hi)}%`;
+  $('tlow').style.left  = pc(lo)+'%';
+  $('thigh').style.left = pc(hi)+'%';
+
+  $('zkill').hidden = !isProd;
+  $('vwRed').hidden = !isProd;
+  $('vwMargin').hidden = !isProd;
+  if (isProd){
+    $('zkill').style.cssText = `left:${pc(DAMAGE_V)}%;width:${100-pc(DAMAGE_V)}%`;
+    $('vwRed').style.left = pc(DAMAGE_V)+'%';
+    const a = pc(hi), b = pc(DAMAGE_V);
+    const bracket = $('vwMargin');
+    bracket.textContent = '';
+    const i = document.createElement('i');
+    i.style.cssText = `left:${a}%;width:${b-a}%`;
+    const t = document.createElement('b');
+    t.style.left = ((a+b)/2)+'%';
+    t.textContent = `MARGIN ${(DAMAGE_V-hi).toFixed(1)} V`;
+    bracket.append(i, t);
+  }
+
+  // A profile switch moves the whole scale; excursions measured on the old one
+  // would draw a bar spanning half the instrument.
+  const scale = min.toFixed(2)+'/'+max.toFixed(2);
+  if (scale !== lastScale){ lastScale = scale; vBuf.length = 0; rulerKey = ''; }
+  ruler(min, max, pc);
+
+  const ml = $('mlabel');
+  $('marker').hidden = !meter;
+  ml.hidden = !meter;
+  if (meter){
+    const p = pc(d.volts);
+    $('marker').style.left = p+'%';
+    ml.style.left = p+'%';
+    ml.style.setProperty('--nudge', p < 12 ? '0%' : p > 88 ? '-100%' : '-50%');
+    const off = d.volts > max ? ' ↑ off scale' : d.volts < min ? ' ↓ off scale' : '';
+    ml.textContent = d.volts.toFixed(1)+'V'+off;
+    ml.classList.toggle('off', !!off);
+
+    // the logo and the left edge of the screen are the same object
+    $('markNeedle').style.transform =
+      'translateX(' + (p/100*20.25 - 10.125).toFixed(2) + 'px)';
+
+    vBuf.push(d.volts);
+    if (vBuf.length > RANGE_N) vBuf.shift();
+    let vlo = vBuf[0], vhi = vBuf[0];
+    for (const x of vBuf){ if (x < vlo) vlo = x; if (x > vhi) vhi = x; }
+    const rg = $('vwRange');
+    rg.hidden = false;
+    if (vhi - vlo < 0.2) rg.style.cssText = `left:${pc(vlo)}%;width:3px`;
+    else rg.style.cssText = `left:${pc(vlo)}%;width:${pc(vhi)-pc(vlo)}%`;
+  } else {
+    $('vwRange').hidden = true; vBuf.length = 0;
+  }
+
+  $('kl').style.left = pc(lo)+'%'; $('kl').textContent = lo.toFixed(0)+'V trip';
+  $('kh').style.left = pc(hi)+'%'; $('kh').textContent = hi.toFixed(0)+'V trip';
+  $('climits').textContent = `dry ${s.dry_amps.toFixed(1)} · max ${s.i_max.toFixed(1)} A`;
+
+  // Headroom is the headline: the largest number here is not the voltage, it
+  // is the distance to the trip.
+  const head = hi - d.volts;
+  const hEl = $('vwHead');
+  if (meter){
+    hEl.className = 'hr' + (head <= span*0.10 ? ' b' : head <= span*0.25 ? ' w' : '');
+    hEl.textContent = (head < 0 ? '−' + Math.abs(head).toFixed(1) : head.toFixed(1)) + ' V';
+    $('vwHeadL').textContent = head < 0 ? 'Above the high trip'
+                                        : `To high trip at ${hi.toFixed(1)} V`;
+  } else {
+    hEl.className = 'hr n';
+    hEl.textContent = '—';
+    $('vwHeadL').textContent = 'No reading';
+  }
+  // the sentence the whole machine exists to prevent
+  $('vwKill').hidden = !(isProd && meter);
+  if (isProd && meter){
+    const k = DAMAGE_V - d.volts;
+    $('vwKill').textContent = k > 0
+      ? `${k.toFixed(1)} V to 150 V — card destroyed`
+      : `Past 150 V — the card is being destroyed`;
+  }
+
+  const bn = $('bandnote');
+  bn.textContent =
+      !meter             ? 'No reading — the power meter is not responding.'
+    : d.state==='lockout' || d.state==='tripped' ? ''   // the hero owns the explanation
+    : d.volts >= hi      ? `Past the ${hi.toFixed(0)}V trip.` + (isProd ? ' The pump card is destroyed above 150V.' : '')
+    : head <= span*0.15  ? `Close to the high trip — ${head.toFixed(1)}V of headroom.`
+    : d.volts > s.v_high_reset ? 'Above the restart window — the pump will not start until it falls.'
+    : d.volts < s.v_low_reset  ? 'Below the restart window — not enough to run the pump.'
+    : `${head.toFixed(1)}V of headroom · trips at ${hi.toFixed(0)}V`;
+  bn.hidden = !bn.textContent;   // an empty rule is worse than no rule
+
+  // "all good" at 143V on a 145V trip is not good.
+  if (meter && head <= span*0.15 && ['run','ready'].includes($('hero').dataset.tone))
+    $('hero').dataset.tone = 'warn';
+
+  // the spine, the header needle and the page all carry one tone
+  document.body.dataset.tone = $('hero').dataset.tone;
+
+  // "confirming stability 491/30" becomes a bar that is visibly finishing.
+  // Only while it is actually settling — a full bar under a hot-array warning
+  // would be a progress claim about nothing.
+  const settling = (d.state === 'starting' || d.state === 'waiting');
+  const settle = (settling && d.settle > 0) ? Math.min(1, (d.stable || 0) / d.settle) : 0;
+  $('hero').style.setProperty('--settle', (settle*100).toFixed(1) + '%');
+
+  lamps(d.state === 'starting' ? 2 : (d.can_start ? 1 : 0),
+        d.state === 'running',
+        ['tripped','lockout','fault'].includes(d.state),
+        (d.dry_strikes > 0) || (d.reason === 'DRY RUN'),
+        1);
+
+  // The whole system in one picture: well at the bottom, tank up top, the
+  // pump between them. Water level in each is the SSRC-04 contact; the pipe
+  // flows only while the pump is actually running. null = relay not wired.
+  const setWater = (rectId, txtId, c, hi, lo, yFull, yLow, bottom) => {
+    const r = $(rectId), t = $(txtId);
+    if (c === null || c === undefined) {
+      r.setAttribute('height', 0);
+      t.textContent = 'no sensor'; t.setAttribute('class', 'sstate none'); return;
+    }
+    const y = c ? yFull : yLow;
+    r.setAttribute('y', y); r.setAttribute('height', Math.max(0, bottom - y));
+    r.setAttribute('class', 'wfill' + (c ? '' : ' dry'));
+    t.textContent = c ? hi : lo;
+    t.setAttribute('class', 'sstate ' + (c ? 'ok' : 'low'));
+  };
+  setWater('tankwater', 'tanks', d.tank_contact, 'FULL', 'EMPTY', 30, 84, 106);
+  setWater('wellwater', 'wells', d.well_contact, 'WATER', 'DRY', 224, 352, 378);
+  // pipe flows and the pump lights only when it is genuinely pumping
+  $('watersys').classList.toggle('run', d.state === 'running');
+
+  $('runtime').textContent = hms(d.run_seconds_today);
+  $('starts').textContent  = d.starts_today;
+  $('kwh').textContent     = (d.energy_today/1000).toFixed(2) + ' kWh';
+  $('strikes').textContent = d.dry_strikes;
+
+  $('hmeter').textContent  = d.meter_ok ? 'ok' : 'not responding';
+  $('hlcd').textContent    = d.display_ok ? 'ok' : 'not responding';
+  $('hprof').textContent   = profLabel(prof);
+  $('huptime').textContent = hms(d.service_uptime);
+
+  // Latched: a refusal is shown once, not re-flashed on every poll.
+  if (d.last_refusal && d.last_refusal !== shownRefusal){
+    shownRefusal = d.last_refusal;
+    if (wiz === 2) wizAbort = d.last_refusal;
+    flash(wiz === 2 ? 'wizmsg' : 'cmdmsg', d.last_refusal, false);
+    setTimeout(() => shownRefusal = null, 6000);
+  }
+
+  if (!touched) {           // never fight someone mid-edit
+    const f = $('form');
+    for (const k in s) if (f.elements[k]) f.elements[k].value = s[k];
+  }
+
+  // Collapsed-section previews: the current value on every summary bar, so the
+  // form is scannable without opening a single panel. Additive ids only.
+  const dryOn = String(s.dry_enabled) === 'true';
+  if ($('sumV'))      $('sumV').textContent      = `${s.v_low_trip}–${s.v_high_trip} V trip`;
+  if ($('sumI'))      $('sumI').textContent      = `${s.i_max} A · ${s.i_max_seconds}s`;
+  if ($('sumDry'))    $('sumDry').textContent    = dryOn ? `on · ${s.dry_amps} A` : 'off';
+  if ($('sumTiming')) $('sumTiming').textContent = `${s.max_run_minutes} min max`;
+
+  renderEvents(d.events);
+  refresh();
+}
+
+/* ── log ─────────────────────────────────────────────────────────────── */
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const KIND = {'OVERVOLT':'crit','OVERCURRENT':'crit','METER LOST':'crit',
+              'DRY RUN':'warn','UNDERVOLT':'warn','STOPPED BY HAND':'hand',
+              // Not a fault: the run hit its limit and the controller ended
+              // it, which is the same class of event as a hand stop.
+              'MAX RUN':'hand'};
+
+function dayLabel(iso){
+  const p = iso.split('-').map(Number);
+  const n = new Date();
+  const days = Math.round((new Date(n.getFullYear(), n.getMonth(), n.getDate())
+                         - new Date(p[0], p[1]-1, p[2])) / 86400000);
+  return days === 0 ? 'TODAY' : days === 1 ? 'YESTERDAY' : `${p[2]} ${MONTHS[p[1]-1]}`;
+}
+
+let evShown = '';
+function renderEvents(list){
+  const key = JSON.stringify(list || []);
+  if (key === evShown) return;
+  evShown = key;
+
+  const ev = $('events');
+  ev.textContent = '';
+  if (!list || !list.length){
+    const e = document.createElement('div');
+    e.className = 'empty';
+    e.textContent = 'Nothing has gone wrong yet.';
+    ev.appendChild(e);
+    return;
+  }
+
+  let day = null;
+  // The server already returns newest first. Five rows from three different
+  // days read as one catastrophic morning without the dividers.
+  list.slice(0,25).forEach(e => {
+    const iso = String(e.at).slice(0,10);
+    if (iso !== day){
+      day = iso;
+      const h = document.createElement('div');
+      h.className = 'daydiv';
+      h.textContent = dayLabel(iso);
+      ev.appendChild(h);
+    }
+    const row = document.createElement('div');
+    row.className = 'ev';
+    row.dataset.kind = KIND[e.reason] || 'hand';
+
+    const t = document.createElement('time');
+    t.textContent = String(e.at).slice(11,16);
+    const r = document.createElement('span');
+    r.className = 'reason';
+    r.textContent = e.reason;
+    const g = document.createElement('span');
+    g.className = 'rdg';
+    g.textContent = `${e.volts.toFixed(1)}V ${e.amps.toFixed(2)}A`;
+    row.append(t, r, g);
+
+    if (e.detail){
+      const dt = document.createElement('span');
+      dt.className = 'det';
+      dt.textContent = e.detail;
+      row.appendChild(dt);
+    }
+    ev.appendChild(row);
+  });
+}
+
+/* ── plumbing ────────────────────────────────────────────────────────── */
+let flashT = {};
+function flash(id, text, good){
+  const el = $(id);
+  el.textContent = text;
+  el.className = 'msg show ' + (good ? 'good' : 'bad');
+  clearTimeout(flashT[id]);
+  flashT[id] = setTimeout(() => el.className = 'msg', 6000);
+}
+
+// No POST on this page may fail silently, and none may be sent twice.
+/* The controller is not slow - this page was.
+   POLL in main.rs is 500ms and the panel is scanned every 20ms, so the relay
+   moves almost as fast as the button. But the page only learned about it on
+   its next 2s tick, which felt like a dead control: you press STOP, the pump
+   really does stop, and the screen sits there unchanged for up to two
+   seconds. On a pump you have just decided to stop, two seconds is long
+   enough to press it again.
+
+   So: mark the button as working the instant it is pressed, then poll hard
+   until the controller's state actually changes, and stop the moment it
+   does. Typical confirmation is now one tick of 150ms rather than up to
+   2000ms. The button stays in its working state until the RELAY has moved -
+   it is never a lie about what the hardware is doing. */
+const CONFIRM_EVERY = 150;
+const CONFIRM_FOR = 4000;
+
+/* Writes to the label node, never to the button: the action control's glyph
+   is CSS ::before content and its reason line is a sibling span, and
+   textContent on the button would erase both. */
+function working(el, on, label){
+  if (!el) return;
+  const t = el.querySelector('.lbl') || el;
+  if (on){
+    el.dataset.was = el.dataset.was || t.textContent;
+    t.textContent = label || 'WORKING…';
+    el.classList.add('working');
+    el.disabled = true;
+  } else {
+    if (el.dataset.was){ t.textContent = el.dataset.was; delete el.dataset.was; }
+    el.classList.remove('working');
+    el.disabled = false;
+  }
+}
+
+async function confirmChange(before){
+  const until = Date.now() + CONFIRM_FOR;
+  while (Date.now() < until){
+    await new Promise(r => setTimeout(r, CONFIRM_EVERY));
+    await tick();
+    if (live && live.state !== before) return true;
+  }
+  return false;   // controller heard us but has not changed state yet
+}
+
+async function cmd(path, msgId, btn){
+  msgId = msgId || 'cmdmsg';
+  if (busy) return false;
+  busy = true;
+  const before = live && live.state;
+  working(btn, true, path === '/stop' ? 'STOPPING…' : 'STARTING…');
+  try{
+    const r = await fetch(path, {method:'POST'});
+    if (!r.ok){ flash(msgId, 'the controller refused that', false); return false; }
+    await tick();
+    if (live && live.state === before) await confirmChange(before);
+    return true;
+  }catch(e){
+    flash(msgId, 'could not reach the controller', false);
+    return false;
+  }finally{ working(btn, false); busy = false; actNow = null; morph(); }
+}
+
+const saveMessage = j => j.ignored && j.ignored.length
+  ? 'Saved. Voltage limits are fixed on production and were left unchanged.'
+  : 'Saved.';
+
+async function saveSettings(ev){
+  ev.preventDefault();
+  if (busy) return;
+  busy = true;
+  try{
+    const body = {};
+    // A select posts the string "true"; the controller wants a real boolean,
+    // or dry-run protection silently stays off while the page says "Saved."
+    new FormData(ev.target).forEach((v,k) => body[k] = (k === 'dry_enabled') ? (v === 'true') : v);
+    const r = await fetch('/settings', {method:'POST',
+        headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+    const j = await r.json();
+    if (j.ok) touched = false;          // a failed save must not discard the edits
+    flash('setmsg', j.ok ? saveMessage(j) : (j.problems || ['the controller refused that']).join(' · '), j.ok);
+  }catch(e){
+    flash('setmsg', 'could not reach the controller', false);
+  }finally{ busy = false; }
+}
+$('form').addEventListener('input', () => touched = true);
+
+async function tick(){
+  try{
+    const r = await fetch('/api', {cache:'no-store'});
+    if (!r.ok) throw new Error('http ' + r.status);
+    const d = await r.json();
+    lastOk = Date.now();
+    paint(d);
+  }catch(e){
+    refresh();          // do not repaint values we cannot vouch for
+  }
+}
+
+/* ── commissioning, driven entirely from here ────────────────────────────
+   The controller needs no wizard of its own: this starts the pump, watches
+   the same readings the protection watches, and posts the result back as
+   ordinary settings. Nothing new to go wrong in the firmware.            */
+const LEARN = 180;
+const WKEY = 'reisbot.wiz';
+let wiz = 0, samples = [], startedAt = 0, wizAbort = null, learned = null;
+
+function mark(n, cls){ ['s1','s2','s3','s4','s5'].forEach((id,i) =>
+  $(id).className = 'step' + (i+1 < n ? ' done' : i+1 === n ? ' ' + cls : '')); }
+
+function wsave(){
+  try{ sessionStorage.setItem(WKEY, JSON.stringify(
+    {wiz, samples, startedAt, learned, ocv:$('ocv').textContent, s1p:$('s1p').textContent}));
+  }catch(e){ /* private mode: the wizard still runs, it just cannot be resumed */ }
+}
+
+async function wrestore(){
+  let w = null;
+  try{ w = JSON.parse(sessionStorage.getItem(WKEY) || 'null'); }catch(e){ w = null; }
+  if (!w) return;
+
+  // Never leave a running pump behind a timer that no longer exists.
+  // Step 3 counts too: the pump was left running there as well, so a reload
+  // that restored the step but not the contactor state was resuming a wizard
+  // on top of a pump nobody was watching. Both steps stop first and start
+  // over - and none of this is the real guarantee anyway. sessionStorage
+  // dies with the tab, so the controller's own run deadline is what actually
+  // ends a forgotten run; this only makes the common case tidy.
+  if (w.wiz === 2 || w.wiz === 3){
+    sessionStorage.removeItem(WKEY);
+    await cmd('/stop','wizmsg');
+    wiz = 0; samples = []; mark(0,''); $('wizBtn').textContent = 'Begin';
+    flash('wizmsg','The setup run was interrupted — the pump has been stopped. Start again.',false);
+    return;
+  }
+
+  wiz = w.wiz || 0; samples = w.samples || []; startedAt = w.startedAt || 0;
+  learned = w.learned || null;
+  if (w.ocv && w.ocv !== '—'){ $('ocv').hidden = false; $('ocv').textContent = w.ocv; }
+  if (w.s1p) $('s1p').textContent = w.s1p;
+  if (samples.length){
+    $('samples').textContent = samples.length;
+    const m = samples.reduce((x,s) => x + s.a, 0)/samples.length;
+    $('avg').textContent = m.toFixed(2) + ' A';
+    $('bar').style.width = '100%';
+  }
+  if (learned){
+    $('result').hidden = false;
+    $('rimax').textContent = learned.i_max + ' A';
+    $('rdrya').textContent = learned.dry_amps + ' A';
+    $('rdryv').textContent = learned.dry_volts + ' V';
+  }
+  const b = $('wizBtn');
+  if (wiz === 1){ mark(2,'on'); b.textContent = 'Start the pump'; b.setAttribute('data-danger',''); }
+  else if (wiz === 3){ mark(4,'on'); b.textContent = 'Yes, water is flowing'; }
+  else if (wiz === 4){ mark(5,'on'); b.textContent = 'Save these thresholds'; }
+}
+
+async function wizard(){
+  const b = $('wizBtn');
+
+  if (wiz === 0){
+    if (!live){ flash('wizmsg','waiting for the controller',false); return; }
+    if (live.state === 'running'){
+      flash('wizmsg','Stop the pump first — the array must be unloaded to read it.',false); return; }
+    $('ocv').hidden = false;
+    $('ocv').textContent = live.volts.toFixed(1) + ' V';
+    $('s1p').textContent = `Open circuit: ${live.volts.toFixed(1)} V. Compare this against your `
+      + `pump's maximum. If it is higher, this array would destroy the pump unprotected.`;
+    mark(2,'on'); wiz = 1; b.textContent = 'Start the pump';
+    b.setAttribute('data-danger','');       // the next tap starts a 1500 W pump
+    wsave(); return;
+  }
+
+  if (wiz === 1){
+    samples = []; wizAbort = null; mark(3,'on'); wiz = 2;
+    b.textContent = 'Learning…'; b.disabled = true; b.removeAttribute('data-danger');
+    startedAt = Date.now(); wsave();
+
+    const ok = await cmd('/start','wizmsg');
+    if (!ok || wizAbort){
+      mark(2,'on'); wiz = 1; b.textContent = 'Start the pump';
+      b.disabled = false; b.setAttribute('data-danger',''); wsave(); return;
+    }
+
+    const timer = setInterval(async () => {
+      await tick();
+      if (wizAbort){                        // the state machine refused the start
+        clearInterval(timer);
+        mark(2,'on'); wiz = 1; b.textContent = 'Start the pump';
+        b.disabled = false; b.setAttribute('data-danger','');
+        wizAbort = null; wsave(); return;
+      }
+      if (live && live.amps > 0.01) samples.push({a:live.amps, v:live.volts});
+      const el = (Date.now() - startedAt)/1000;
+      $('bar').style.width = Math.min(100, el/LEARN*100) + '%';
+      $('samples').textContent = samples.length;
+      if (samples.length){
+        const m = samples.reduce((x,s) => x + s.a, 0)/samples.length;
+        $('avg').textContent = m.toFixed(2) + ' A';
+      }
+      wsave();
+      if (el >= LEARN){
+        clearInterval(timer); b.disabled = false;
+        if (samples.length < 10){
+          mark(3,'on'); wiz = 0; b.textContent = 'Begin';
+          await cmd('/stop','wizmsg');
+          flash('wizmsg','The pump never drew any current — nothing to learn from.',false);
+          wsave();
+          return;
+        }
+        // Measuring is done, so stop pumping. Step 3 only asks the operator
+        // to confirm what they watched during the run - there is nothing
+        // left to learn from a pump that keeps running while it waits for a
+        // tap that may never come. This used to leave the contactor closed
+        // indefinitely on the ordinary path, no lost tab required.
+        await cmd('/stop','wizmsg');
+        mark(4,'on'); wiz = 3; b.textContent = 'Yes, water is flowing';
+        wsave();
+      }
+    }, 2000);
+    return;
+  }
+
+  if (wiz === 3){
+    const n = samples.length;
+    const a = samples.reduce((x,s) => x + s.a, 0)/n;
+    const v = samples.reduce((x,s) => x + s.v, 0)/n;
+    const oc = parseFloat($('ocv').textContent) || v;
+    // Headroom above the working point; dry running unloads the motor so
+    // current falls while the array climbs back toward open circuit.
+    const out = { i_max:(a*1.35).toFixed(2), dry_amps:(a*0.65).toFixed(2),
+                  dry_volts:(v + Math.max(0, oc-v)*0.35).toFixed(1) };
+    $('result').hidden = false;
+    $('rimax').textContent = out.i_max + ' A';
+    $('rdrya').textContent = out.dry_amps + ' A';
+    $('rdryv').textContent = out.dry_volts + ' V';
+    mark(5,'on'); wiz = 4; b.textContent = 'Save these thresholds';
+    learned = out; wsave();
+    await cmd('/stop','wizmsg');
+    return;
+  }
+
+  if (wiz === 4){
+    if (busy) return;
+    busy = true;
+    try{
+      const r = await fetch('/settings/measured', {method:'POST',
+          headers:{'Content-Type':'application/json'}, body: JSON.stringify(learned)});
+      const j = await r.json();
+      flash('wizmsg', j.ok ? 'Saved. The pump is now protected using its own measured numbers.'
+                           : (j.problems || ['the controller refused that']).join(' · '), j.ok);
+      if (j.ok){ mark(6,''); wiz = 0; b.textContent = 'Run again'; learned = null; wsave(); }
+    }catch(e){
+      flash('wizmsg','could not reach the controller',false);
+    }finally{ busy = false; }
+  }
+}
+
+async function setProfile(which){
+  if (busy) return;
+  const pass = $('profPass').value;
+  if (!pass){ flash('profmsg','Enter the admin password first.',false); return; }
+
+  const name = which === 'pump' ? 'PRODUCTION (138 V pump)' : 'BENCH (10-20 V supply)';
+  if (!confirm(`Switch every threshold to ${name}?\n\n`
+             + `This overwrites all voltage and current limits, including any `
+             + `the setup wizard measured.`)) return;
+
+  busy = true;
+  try{
+    const r = await fetch('/profile', {method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({pass, profile: which})});
+    const j = await r.json();
+    flash('profmsg', j.ok ? `Applied ${j.profile}. Every limit has been rewritten.`
+                          : (j.error || 'failed'), j.ok);
+    if (j.ok){ $('profPass').value = ''; touched = false; rulerKey = ''; }
+  }catch(e){
+    flash('profmsg','could not reach the controller',false);
+  }finally{
+    busy = false;
+  }
+  tick();
+}
+
+wrestore();
+tick(); setInterval(tick, 2000); setInterval(refresh, 1000);
+</script>
+</body>
+</html>

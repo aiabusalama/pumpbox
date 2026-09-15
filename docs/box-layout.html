@@ -1,0 +1,487 @@
+<title>REISBOT Panel Layout</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#eef1f4; --panel:#ffffff; --panel-2:#f6f8fa;
+    --ink:#18222e; --ink-soft:#54617180; --muted:#5b6875; --hair:#d5dce3;
+    --backplate:#e7ebef; --backplate-line:#c3ccd4; --rail:#c9d0d7; --rail-slot:#aab4bd;
+    --duct:#dbe1e7; --duct-slot:#c2cad2;
+    --accent:#2563eb; --accent-soft:#2563eb22;
+    --shadow:0 1px 2px #1a26330f, 0 8px 24px #1a26330d;
+    /* role fills */
+    --r-protection:#f4b23e; --r-power:#5a86c9; --r-supply:#3fa07a;
+    --r-bus:#8a7bd8; --r-logic:#2fa3b8; --r-sensor:#c77b3e;
+    --r-terminal:#7b8794; --r-earth:#5aa84a;
+    /* net colors (semantic, stable across themes) */
+    --net-v143p:#e11d74; --net-v143n:#1c232b; --net-v5:#e0342a;
+    --net-v12:#f0901a; --net-v24:#7c3aed; --net-coil:#b061f0;
+    --net-sig:#2563eb; --net-earth:#159a3f; --net-shunt:#b45309;
+    --font-ui:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#0d1116; --panel:#161d26; --panel-2:#111721;
+      --ink:#dce4ee; --ink-soft:#8895a480; --muted:#8593a2; --hair:#283340;
+      --backplate:#1a222c; --backplate-line:#2c3947; --rail:#38434f; --rail-slot:#4a5765;
+      --duct:#1e2732; --duct-slot:#313d4a;
+      --accent:#5b9bff; --accent-soft:#5b9bff26;
+      --shadow:0 1px 2px #0007, 0 10px 30px #0006;
+      --r-protection:#e0a63f; --r-power:#5f8bd0; --r-supply:#43a684;
+      --r-bus:#9585e2; --r-logic:#3ab0c6; --r-sensor:#cf864a;
+      --r-terminal:#8592a0; --r-earth:#61b350;
+      --net-v143p:#ff4d97; --net-v143n:#c7d0da; --net-v5:#ff5347;
+      --net-v12:#ffa53d; --net-v24:#9d6cff; --net-coil:#c98bff;
+      --net-sig:#4d94ff; --net-earth:#37c563; --net-shunt:#e0913f;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0d1116; --panel:#161d26; --panel-2:#111721;
+    --ink:#dce4ee; --ink-soft:#8895a480; --muted:#8593a2; --hair:#283340;
+    --backplate:#1a222c; --backplate-line:#2c3947; --rail:#38434f; --rail-slot:#4a5765;
+    --duct:#1e2732; --duct-slot:#313d4a;
+    --accent:#5b9bff; --accent-soft:#5b9bff26;
+    --shadow:0 1px 2px #0007, 0 10px 30px #0006;
+    --r-protection:#e0a63f; --r-power:#5f8bd0; --r-supply:#43a684;
+    --r-bus:#9585e2; --r-logic:#3ab0c6; --r-sensor:#cf864a;
+    --r-terminal:#8592a0; --r-earth:#61b350;
+    --net-v143p:#ff4d97; --net-v143n:#c7d0da; --net-v5:#ff5347;
+    --net-v12:#ffa53d; --net-v24:#9d6cff; --net-coil:#c98bff;
+    --net-sig:#4d94ff; --net-earth:#37c563; --net-shunt:#e0913f;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:var(--font-ui); line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+    padding:clamp(10px,2.5vw,22px);
+  }
+  .wrap{max-width:1240px;margin:0 auto}
+
+  header.top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 18px;margin-bottom:14px}
+  .titles{flex:1 1 300px}
+  .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+  h1{font-size:clamp(20px,3.4vw,29px);margin:.12em 0 .1em;line-height:1.08;letter-spacing:-.01em;text-wrap:balance}
+  .sub{color:var(--muted);font-size:13.5px;max-width:62ch}
+  .dims{font-family:var(--font-mono);font-size:12px;color:var(--muted);white-space:nowrap}
+  .dims b{color:var(--ink);font-weight:600}
+
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 12px}
+  button.ctl{
+    font-family:var(--font-mono);font-size:12px;letter-spacing:.03em;
+    background:var(--panel);color:var(--ink);border:1px solid var(--hair);
+    padding:7px 13px;border-radius:8px;cursor:pointer;box-shadow:var(--shadow);
+    transition:border-color .15s,background .15s;
+  }
+  button.ctl:hover{border-color:var(--accent)}
+  button.ctl:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .selname{font-family:var(--font-mono);font-size:12px;color:var(--muted);align-self:center;margin-left:2px}
+  .selname b{color:var(--ink)}
+
+  .layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start}
+  @media (max-width:840px){.layout{grid-template-columns:1fr}}
+
+  .stage{
+    background:var(--panel);border:1px solid var(--hair);border-radius:14px;
+    box-shadow:var(--shadow);padding:10px;overflow-x:auto;
+  }
+  .stage svg{display:block;width:100%;min-width:560px;height:auto}
+
+  aside{display:flex;flex-direction:column;gap:14px;position:sticky;top:12px}
+  @media (max-width:840px){aside{position:static}}
+  .card{background:var(--panel);border:1px solid var(--hair);border-radius:14px;box-shadow:var(--shadow);padding:14px}
+  .card h2{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;font-weight:600}
+
+  /* connection panel */
+  #panelBody .hint{color:var(--muted);font-size:13px}
+  .pc-head{display:flex;align-items:center;gap:9px;margin-bottom:3px}
+  .pc-dot{width:11px;height:11px;border-radius:3px;flex:none;border:1px solid #0002}
+  .pc-title{font-family:var(--font-mono);font-size:14px;font-weight:600;line-height:1.2}
+  .pc-role{font-family:var(--font-mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
+  .pc-dim{font-family:var(--font-mono);font-size:11.5px;color:var(--ink);margin-bottom:11px}
+  .pc-dim b{color:var(--muted);font-weight:400}
+  .conn{display:flex;flex-direction:column;gap:1px;margin:0;padding:0;list-style:none}
+  .conn li{display:flex;gap:9px;align-items:baseline;padding:5px 0;border-top:1px solid var(--hair);font-size:12.5px}
+  .conn li:first-child{border-top:none}
+  .swatch{width:15px;height:4px;border-radius:2px;flex:none;margin-top:6px}
+  .conn .to{font-family:var(--font-mono);font-weight:600;color:var(--ink)}
+  .conn .note{color:var(--muted);font-size:11.5px}
+  .conn .netname{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+
+  /* legends */
+  .legrow{display:flex;align-items:center;gap:9px;font-size:12.5px;padding:3px 0;cursor:default}
+  .legrow .ln{width:26px;height:0;border-top-width:3px;border-top-style:solid;flex:none;border-radius:2px}
+  .legrow .lb{font-family:var(--font-mono);font-size:11.5px;color:var(--ink);font-weight:600;min-width:52px}
+  .legrow .ld{color:var(--muted);font-size:11.5px}
+  .roles{display:flex;flex-wrap:wrap;gap:6px 10px;margin-top:2px}
+  .rolechip{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted)}
+  .rolechip i{width:11px;height:11px;border-radius:3px;display:inline-block;border:1px solid #0002}
+  .notes{margin:11px 0 0;padding:11px 0 0;border-top:1px solid var(--hair);font-size:11.5px;color:var(--muted);line-height:1.5}
+  .notes b{color:var(--ink);font-weight:600}
+
+  /* svg element classes */
+  .wire{fill:none;stroke-linejoin:round;stroke-linecap:round;pointer-events:none;
+    stroke-width:var(--w);opacity:.16;transition:opacity .12s}
+  .wire.faint{opacity:.16}
+  .wire.dim{opacity:.05}
+  .wire.hot{opacity:1;stroke-width:calc(var(--w) * 1.65)}
+  .comp{cursor:pointer}
+  .comp .box{stroke-width:1;transition:opacity .12s}
+  .comp .lbl{font-family:var(--font-mono);fill:var(--ink);pointer-events:none;transition:opacity .12s}
+  .comp.dim{opacity:.26}
+  .comp.sel .box{stroke:var(--accent);stroke-width:2;filter:drop-shadow(0 0 3px var(--accent-soft))}
+  .comp:focus-visible{outline:none}
+  .comp:focus-visible .box{stroke:var(--accent);stroke-width:2}
+  .glab{font-family:var(--font-mono);fill:var(--muted);pointer-events:none;letter-spacing:.12em}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="titles">
+      <div class="eyebrow">Solar Pump Controller · Enclosure Build</div>
+      <h1>REISBOT Panel Layout</h1>
+      <div class="sub">Top-down view of the 300 &times; 200&nbsp;mm backplate. Click any component to light up every wire on it, in its function colour, with the rest dimmed.</div>
+    </div>
+    <div class="dims">backplate <b>300&times;200&nbsp;mm</b><br>DIN rail <b>35&nbsp;mm</b> · 143&nbsp;V DC</div>
+  </header>
+
+  <div class="controls">
+    <button class="ctl" id="resetBtn">Show all / reset</button>
+    <button class="ctl" id="themeBtn">Toggle theme</button>
+    <span class="selname" id="selName">nothing selected — click a part</span>
+  </div>
+
+  <div class="layout">
+    <div class="stage" id="stage" aria-label="Enclosure top-view wiring diagram"></div>
+
+    <aside>
+      <div class="card">
+        <h2>Connections</h2>
+        <div id="panelBody"><p class="hint">Click a component in the layout to see its terminals and every wire that lands on it.</p></div>
+      </div>
+
+      <div class="card">
+        <h2>Wire colours &middot; function</h2>
+        <div id="netLegend"></div>
+        <div class="notes" id="cableNotes">
+          <b>Cable management.</b> Ferrules crimped on every stranded end; heat-shrink wire-number markers at both ends.
+          Commons are DIN terminal blocks bridged by <b>jumper bars</b> into a bus (+5V / +12V / +24V / GND, plus the 143V&plusmn; bus).
+          Runs sit in <b>slotted trunking (wire duct)</b> between rows; field cables leave through <b>PG-16 glands</b> at the bottom edge.
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Component roles</h2>
+        <div class="roles" id="roleLegend"></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const SVGNS="http://www.w3.org/2000/svg";
+  const el=(n,a)=>{const e=document.createElementNS(SVGNS,n);if(a)for(const k in a)e.setAttribute(k,a[k]);return e;};
+
+  /* ---------- role palette ---------- */
+  const ROLES={
+    protection:{fill:"var(--r-protection)",label:"Protection"},
+    power:{fill:"var(--r-power)",label:"Power / switching"},
+    supply:{fill:"var(--r-supply)",label:"PSU / supply"},
+    bus:{fill:"var(--r-bus)",label:"Common / bus bar"},
+    logic:{fill:"var(--r-logic)",label:"Logic / control"},
+    sensor:{fill:"var(--r-sensor)",label:"Sensor / metering"},
+    terminal:{fill:"var(--r-terminal)",label:"Field / probe terminal"},
+    earth:{fill:"var(--r-earth)",label:"Earth"}
+  };
+
+  /* ---------- net (wire) palette ---------- */
+  const NETS={
+    v143p:{c:"var(--net-v143p)",w:2.0,name:"143V+",desc:"PV positive rail",label:"143 V+"},
+    v143n:{c:"var(--net-v143n)",w:3.1,name:"143V-",desc:"PV / pump negative (fat)",label:"143 V-"},
+    v5:{c:"var(--net-v5)",w:1.6,name:"5V",desc:"Pi · LCD · relay VCC",label:"5 V"},
+    v12:{c:"var(--net-v12)",w:1.6,name:"12V",desc:"SSRC-04 relay coils",label:"12 V"},
+    v24:{c:"var(--net-v24)",w:1.6,name:"24V",desc:"Contactor coil supply",label:"24 V"},
+    coil:{c:"var(--net-coil)",w:1.6,dash:"4 2.4",name:"Coil",desc:"Interlock to contactor A1/A2",label:"Coil"},
+    sig:{c:"var(--net-sig)",w:1.1,name:"Signal",desc:"GPIO · UART · level taps",label:"Signal"},
+    earth:{c:"var(--net-earth)",w:1.4,dash:"3 2",name:"Earth",desc:"PE — SPD · bar · terminal",label:"Earth"},
+    shunt:{c:"var(--net-shunt)",w:1.1,dash:"2 2",name:"Shunt",desc:"Shunt sense to PZEM",label:"Shunt"}
+  };
+
+  /* ---------- components: id, label, short, role, rect(mm-ish top view) ---------- */
+  // x,y,w,h are millimetres on the 300×200 backplate (scale 1 SVG unit = 1 mm;
+  // backplate origin at 30,18). `dim` is the part's real datasheet footprint.
+  const COMP=[
+    // DIN rail (top): real module widths, sit on the 35 mm rail
+    {id:"breaker", label:"Breaker 16A 2P DC", short:"Q1 Breaker", role:"protection", dim:"36 × 85 mm · 2-module", x:36, y:34, w:36, h:44},
+    {id:"fuse", label:"Fuse 16A 1000V", short:"F1", role:"protection", dim:"17.5 × 90 mm · 10×38", x:76, y:34, w:18, h:44},
+    {id:"spd", label:"SPD Type-2 DC", short:"SPD", role:"protection", dim:"36 × 90 mm · 2-module", x:98, y:34, w:36, h:44},
+    {id:"contactor", label:"Contactor LP1K0901", short:"KM1", role:"power", dim:"45 × 58 mm · TeSys K", x:138, y:34, w:45, h:50},
+    {id:"earthbar", label:"Earth bar", short:"PE bar", role:"earth", dim:"PE busbar", x:188, y:35, w:60, h:8},
+    {id:"ssrc_well", label:"SSRC-04 Well level", short:"SSRC-04 Well", role:"logic", dim:"36 × 90 mm · PK28", x:250, y:34, w:36, h:90},
+    {id:"ssrc_tank", label:"SSRC-04 Tank level", short:"SSRC-04 Tank", role:"logic", dim:"36 × 90 mm · PK28", x:290, y:34, w:36, h:90},
+    // HV distribution + logic common buses (DIN terminal rows, jumper-bridged)
+    {id:"busHVp", label:"143V+ bus", short:"143V+ bus", role:"bus", dim:"DIN terminal bus", x:216.4, y:195.6, w:100, h:6},
+    {id:"busHVn", label:"143V- bus", short:"143V- bus", role:"bus", dim:"DIN terminal bus", x:33.6, y:198.8, w:100, h:6},
+    {id:"bus5", label:"+5V common", short:"+5V", role:"bus", dim:"DIN terminal bus", x:216.4, y:204.8, w:50, h:6},
+    {id:"bus12", label:"+12V common", short:"+12V", role:"bus", dim:"DIN terminal bus", x:269.6, y:204.8, w:50, h:6},
+    {id:"bus24", label:"+24V common", short:"+24V", role:"bus", dim:"DIN terminal bus", x:33.6, y:208, w:50, h:6},
+    {id:"busgnd", label:"GND common", short:"GND", role:"bus", dim:"DIN terminal bus", x:86.8, y:208, w:50, h:6},
+    // supplies (Hi-Link bricks) — true footprints
+    {id:"hlk5", label:"HLK-20M05 → 5V", short:"5V PSU", role:"supply", dim:"56 × 32 mm · H22.5", x:186.2, y:46.2, w:56, h:32},
+    {id:"hlk12", label:"HLK-20M12 → 12V", short:"12V PSU", role:"supply", dim:"56 × 32 mm · H22.5", x:228, y:127.2, w:56, h:32},
+    {id:"hlk24", label:"HLK-10M24 → 24V", short:"24V PSU", role:"supply", dim:"46.9 × 27.8 mm", x:33.6, y:144.4, w:47, h:28},
+    // boards / metering — true footprints
+    {id:"pi", label:"Raspberry Pi Zero W", short:"Pi Zero W", role:"logic", dim:"65 × 30 mm", x:191, y:162.4, w:65, h:30},
+    {id:"max485", label:"MAX485 module", short:"MAX485", role:"sensor", dim:"44 × 14 mm", x:169.2, y:195.6, w:44, h:14},
+    {id:"pzem", label:"PZEM-017", short:"PZEM-017", role:"sensor", dim:"90 × 60.5 mm", x:134.8, y:87.2, w:90, h:60},
+    {id:"shunt", label:"Shunt 50A", short:"Shunt 50A", role:"sensor", dim:"104 × 21.5 mm", x:83.8, y:150.4, w:104, h:22},
+    {id:"relay", label:"GPIO relay (coil drive)", short:"GPIO relay", role:"logic", dim:"≈40 × 20 mm", x:124, y:175.6, w:42, h:20},
+    {id:"lcd", label:"20×4 LCD (reads through lid)", short:"20×4 LCD", role:"logic", dim:"98 × 60 mm · H24", x:33.6, y:81.2, w:98, h:60},
+    // probe / field terminals — true terminal-block footprints
+    {id:"probe_well", label:"Well probe terminals", short:"Well U/L/B", role:"terminal", dim:"3× 5.2 mm blocks", x:33.6, y:175.6, w:42, h:20},
+    {id:"probe_tank", label:"Tank probe terminals", short:"Tank U/L/B", role:"terminal", dim:"3× 5.2 mm blocks", x:78.8, y:175.6, w:42, h:20},
+    {id:"pvp", label:"PV+ field terminal", short:"PV+", role:"terminal", dim:"5.2 × 42.5 mm", x:259.2, y:162.4, w:6.5, h:30},
+    {id:"pvn", label:"PV− field terminal", short:"PV−", role:"terminal", dim:"5.2 × 42.5 mm", x:267.7, y:162.4, w:6.5, h:30},
+    {id:"pp", label:"P+ field terminal", short:"P+", role:"terminal", dim:"5.2 × 42.5 mm", x:276.2, y:162.4, w:6.5, h:30},
+    {id:"pn", label:"P− field terminal", short:"P−", role:"terminal", dim:"5.2 × 42.5 mm", x:284.7, y:162.4, w:6.5, h:30},
+    {id:"pe", label:"PE field terminal", short:"PE", role:"terminal", dim:"5.2 × 42.5 mm", x:293.2, y:162.4, w:6.5, h:30}
+  ];
+  const byId={}; COMP.forEach(c=>byId[c.id]=c);
+
+  /* ---------- wires: from, to, net, note(pin text) ---------- */
+  const WIRE=[
+    // 143V+
+    ["pvp","breaker","v143p","PV+ in"],
+    ["breaker","fuse","v143p","line side"],
+    ["fuse","busHVp","v143p","→ +bus"],
+    ["busHVp","hlk5","v143p","PSU in +"],
+    ["busHVp","hlk12","v143p","PSU in +"],
+    ["busHVp","hlk24","v143p","PSU in +"],
+    ["busHVp","spd","v143p","SPD +"],
+    ["busHVp","pzem","v143p","PZEM IN+"],
+    ["busHVp","contactor","v143p","pole 1"],
+    ["contactor","pp","v143p","pole 6 → P+"],
+    // 143V-
+    ["pn","shunt","v143n","P− in"],
+    ["shunt","busHVn","v143n","→ −bus"],
+    ["busHVn","pvn","v143n","PV−"],
+    ["busHVn","hlk5","v143n","PSU in −"],
+    ["busHVn","hlk12","v143n","PSU in −"],
+    ["busHVn","hlk24","v143n","PSU in −"],
+    ["busHVn","pzem","v143n","PZEM IN−"],
+    ["busHVn","spd","v143n","SPD −"],
+    // 5V
+    ["hlk5","bus5","v5","+5V out"],
+    ["bus5","pi","v5","Pi 5V"],
+    ["bus5","lcd","v5","LCD 5V"],
+    ["bus5","relay","v5","relay VCC"],
+    // 12V
+    ["hlk12","bus12","v12","+12V out"],
+    ["bus12","ssrc_well","v12","A1"],
+    ["bus12","ssrc_tank","v12","A1"],
+    // 24V
+    ["hlk24","bus24","v24","+24V out"],
+    ["bus24","relay","v24","relay COM"],
+    // coil interlock
+    ["relay","ssrc_well","coil","NO → Well C"],
+    ["ssrc_well","contactor","coil","Well NO → coil A1"],
+    ["contactor","busgnd","coil","coil A2 → GND"],
+    // signal / data
+    ["pi","relay","sig","GPIO17 → IN"],
+    ["pzem","max485","sig","A / B"],
+    ["max485","pi","sig","UART"],
+    ["ssrc_well","pi","sig","tap → pin40 (PC817)"],
+    ["ssrc_tank","pi","sig","NO → pin38"],
+    ["ssrc_tank","busgnd","sig","C → GND"],
+    ["ssrc_well","probe_well","sig","U / L / B"],
+    ["ssrc_tank","probe_tank","sig","U / L / B"],
+    ["lcd","pi","sig","I²C / GPIO"],
+    // earth
+    ["spd","earthbar","earth","SPD PE"],
+    ["earthbar","pe","earth","PE out"],
+    // shunt sense
+    ["shunt","pzem","shunt","SHUNT +/−"]
+  ].map((w,i)=>({from:w[0],to:w[1],net:w[2],note:w[3],i}));
+
+  /* ---------- decorative slotted trunking (wire duct) ---------- */
+  // At true component scale the backplate packs too densely for dedicated
+  // trunking lanes, so ducts are omitted; runs sit in the gaps between parts.
+  const DUCTS=[];
+
+  /* ---------- geometry: orthogonal 3-segment routing ---------- */
+  function route(a,b,idx){
+    const acx=a.x+a.w/2, acy=a.y+a.h/2, bcx=b.x+b.w/2, bcy=b.y+b.h/2;
+    const dx=bcx-acx, dy=bcy-acy;
+    const j=((idx*37)%7-3)*2.1; // spread parallel runs
+    let pts;
+    if(Math.abs(dx)>=Math.abs(dy)){ // horizontal dominant -> H V H
+      const sx=dx>0?a.x+a.w:a.x, ex=dx>0?b.x:b.x+b.w;
+      const mx=(sx+ex)/2+j;
+      pts=[[sx,acy],[mx,acy],[mx,bcy],[ex,bcy]];
+    }else{ // vertical dominant -> V H V
+      const sy=dy>0?a.y+a.h:a.y, ey=dy>0?b.y:b.y+b.h;
+      const my=(sy+ey)/2+j;
+      pts=[[acx,sy],[acx,my],[bcx,my],[bcx,ey]];
+    }
+    return "M"+pts.map(p=>p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" L");
+  }
+
+  /* ---------- build svg ---------- */
+  const VW=362, VH=250;
+  const svg=el("svg",{viewBox:`0 0 ${VW} ${VH}`,role:"img","aria-label":"REISBOT enclosure top-view wiring diagram, 300 by 200 mm backplate"});
+
+  // background click-catcher
+  const bg=el("rect",{x:0,y:0,width:VW,height:VH,fill:"transparent"});
+  bg.addEventListener("click",reset); svg.appendChild(bg);
+
+  // backplate
+  svg.appendChild(el("rect",{x:30,y:18,width:300,height:200,rx:5,fill:"var(--backplate)",stroke:"var(--backplate-line)","stroke-width":1}));
+  // corner mounting holes
+  [[38,26],[322,26],[38,210],[322,210]].forEach(([cx,cy])=>svg.appendChild(el("circle",{cx,cy,r:2.1,fill:"none",stroke:"var(--backplate-line)","stroke-width":1})));
+
+  // DIN rail strip
+  svg.appendChild(el("rect",{x:34,y:28,width:292,height:8,rx:1.5,fill:"var(--rail)",stroke:"var(--backplate-line)","stroke-width":.6}));
+  for(let x=40;x<324;x+=7){svg.appendChild(el("line",{x1:x,y1:29.5,x2:x,y2:34.5,stroke:"var(--rail-slot)","stroke-width":.8}));}
+  svg.appendChild(el("text",{x:34,y:25,class:"glab","font-size":4.4},"DIN RAIL 35mm"));
+
+  // slotted trunking ducts (decorative)
+  DUCTS.forEach(d=>{
+    svg.appendChild(el("rect",{x:d.x,y:d.y,width:d.w,height:d.h,rx:1,fill:"var(--duct)",stroke:"var(--duct-slot)","stroke-width":.5}));
+    if(d.w>=d.h){for(let x=d.x+3;x<d.x+d.w-1;x+=5)svg.appendChild(el("line",{x1:x,y1:d.y+1,x2:x,y2:d.y+d.h-1,stroke:"var(--duct-slot)","stroke-width":.7}));}
+    else{for(let y=d.y+3;y<d.y+d.h-1;y+=5)svg.appendChild(el("line",{x1:d.x+1,y1:y,x2:d.x+d.w-1,y2:y,stroke:"var(--duct-slot)","stroke-width":.7}));}
+  });
+  // field entry / gland strip (cable entry at the enclosure bottom edge)
+  svg.appendChild(el("text",{x:40,y:223,class:"glab","font-size":4},"PG-16 CABLE GLANDS"));
+  [58,90,122,154,186].forEach(cx=>svg.appendChild(el("circle",{cx,cy:245,r:2.4,fill:"none",stroke:"var(--backplate-line)","stroke-width":.9})));
+
+  // layer for base wires (under components)
+  const wireLayer=el("g",{}); svg.appendChild(wireLayer);
+  const compLayer=el("g",{}); svg.appendChild(compLayer);
+  const hotLayer=el("g",{}); svg.appendChild(hotLayer); // hot wires drawn above comps
+
+  // build wires
+  const wireEls=[];
+  WIRE.forEach(w=>{
+    const a=byId[w.from], b=byId[w.to], net=NETS[w.net];
+    const p=el("path",{d:route(a,b,w.i),class:"wire faint",stroke:net.c});
+    p.style.setProperty("--w",net.w);
+    p.setAttribute("vector-effect","non-scaling-stroke");
+    if(net.dash)p.setAttribute("stroke-dasharray",net.dash);
+    wireLayer.appendChild(p);
+    wireEls.push({node:p,data:w});
+  });
+
+  // build components
+  const compEls={};
+  COMP.forEach(c=>{
+    const g=el("g",{class:"comp",tabindex:"0",role:"button","aria-label":c.label});
+    const thin=c.h<12;
+    const box=el("rect",{x:c.x,y:c.y,width:c.w,height:c.h,rx:thin?1.5:2.2,
+      class:"box",fill:ROLES[c.role].fill,"fill-opacity":thin?.5:.34,stroke:ROLES[c.role].fill,"stroke-opacity":.95});
+    g.appendChild(box);
+    g.appendChild(el("title",{},c.label));
+    // label — rotate 90° inside tall/narrow boxes so text fits the long axis
+    const cx=c.x+c.w/2, cy=c.y+c.h/2;
+    const rot=(c.h>c.w*1.5 && c.w<18);
+    const span=rot?c.h:c.w;
+    const fs=span/(c.short.length*0.62);
+    const t=el("text",{class:"lbl","text-anchor":"middle","dominant-baseline":"central",
+      x:cx,y:cy,"font-size":Math.max(2.7,Math.min(4.4,fs))});
+    if(rot)t.setAttribute("transform","rotate(-90 "+cx+" "+cy+")");
+    t.textContent=c.short;
+    g.appendChild(t);
+    g.addEventListener("click",e=>{e.stopPropagation();select(c.id);});
+    g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();select(c.id);}if(e.key==="Escape")reset();});
+    compLayer.appendChild(g);
+    compEls[c.id]=g;
+  });
+
+  document.getElementById("stage").appendChild(svg);
+
+  /* ---------- interaction ---------- */
+  let selected=null;
+  const selName=document.getElementById("selName");
+  const panelBody=document.getElementById("panelBody");
+
+  function connectionsOf(id){return wireEls.filter(w=>w.data.from===id||w.data.to===id);}
+
+  function select(id){
+    selected=id;
+    const conns=connectionsOf(id);
+    const nbr=new Set(); conns.forEach(w=>{nbr.add(w.data.from);nbr.add(w.data.to);});
+    // components
+    COMP.forEach(c=>{
+      const g=compEls[c.id];
+      g.classList.toggle("sel",c.id===id);
+      g.classList.toggle("dim",!nbr.has(c.id));
+    });
+    // wires: move hot to top layer, dim the rest
+    wireEls.forEach(w=>{
+      const hot=(w.data.from===id||w.data.to===id);
+      w.node.classList.remove("faint","dim","hot");
+      if(hot){w.node.classList.add("hot");hotLayer.appendChild(w.node);}
+      else{w.node.classList.add("dim");wireLayer.appendChild(w.node);}
+    });
+    selName.innerHTML="showing · <b>"+byId[id].label+"</b>";
+    renderPanel(id,conns);
+  }
+
+  function reset(){
+    selected=null;
+    COMP.forEach(c=>{compEls[c.id].classList.remove("sel","dim");});
+    wireEls.forEach(w=>{w.node.classList.remove("dim","hot");w.node.classList.add("faint");wireLayer.appendChild(w.node);});
+    selName.textContent="nothing selected — click a part";
+    panelBody.innerHTML='<p class="hint">Click a component in the layout to see its terminals and every wire that lands on it.</p>';
+  }
+
+  function renderPanel(id,conns){
+    const c=byId[id];
+    let h='<div class="pc-head"><span class="pc-dot" style="background:'+ROLES[c.role].fill+'"></span>'+
+          '<span class="pc-title">'+c.label+'</span></div>'+
+          '<div class="pc-role">'+ROLES[c.role].label+' · '+conns.length+' connection'+(conns.length===1?'':'s')+'</div>'+
+          '<div class="pc-dim"><b>footprint</b> '+c.dim+'</div>';
+    h+='<ul class="conn">';
+    conns.forEach(w=>{
+      const other=(w.data.from===id)?w.data.to:w.data.from;
+      const net=NETS[w.data.net];
+      h+='<li><span class="swatch" style="background:'+net.c+'"></span><span>'+
+         '<span class="netname">'+net.name+'</span>'+
+         '<span class="to">'+byId[other].short+'</span>'+
+         (w.data.note?' <span class="note">· '+w.data.note+'</span>':'')+
+         '</span></li>';
+    });
+    h+='</ul>';
+    panelBody.innerHTML=h;
+  }
+
+  /* ---------- legends ---------- */
+  const netLegend=document.getElementById("netLegend");
+  Object.keys(NETS).forEach(k=>{
+    const n=NETS[k];
+    const row=document.createElement("div");row.className="legrow";
+    row.innerHTML='<span class="ln" style="border-top-color:'+n.c+(n.dash?';border-top-style:dashed':'')+'"></span>'+
+                  '<span class="lb">'+n.label+'</span><span class="ld">'+n.desc+'</span>';
+    netLegend.appendChild(row);
+  });
+  const roleLegend=document.getElementById("roleLegend");
+  Object.keys(ROLES).forEach(k=>{
+    const r=ROLES[k];
+    const chip=document.createElement("div");chip.className="rolechip";
+    chip.innerHTML='<i style="background:'+r.fill+'"></i>'+r.label;
+    roleLegend.appendChild(chip);
+  });
+
+  /* ---------- controls ---------- */
+  document.getElementById("resetBtn").addEventListener("click",reset);
+  const root=document.documentElement;
+  document.getElementById("themeBtn").addEventListener("click",()=>{
+    const cur=root.getAttribute("data-theme");
+    const isDark=cur?cur==="dark":matchMedia("(prefers-color-scheme:dark)").matches;
+    root.setAttribute("data-theme",isDark?"light":"dark");
+  });
+})();
+</script>

@@ -1,0 +1,19 @@
+[Unit]
+Description=Assert WiFi regulatory domain before NetworkManager
+# Must land before NM starts the AP, or the channel list it validates
+# against is the empty world-regulatory set.
+Before=NetworkManager.service
+After=systemd-modules-load.service
+DefaultDependencies=yes
+
+# No relationship with pump-protection.service, in either direction.
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/pump-ap-regdom __COUNTRY__
+# A bad regulatory domain must never hold up the boot of a pump protector.
+TimeoutStartSec=30
+
+[Install]
+WantedBy=multi-user.target

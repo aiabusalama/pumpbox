@@ -1,0 +1,31 @@
+[Unit]
+Description=Solar pump protection controller
+Documentation=file:__DIR__/DESIGN.md
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+ExecStart=__DIR__/pumpd
+WorkingDirectory=__DIR__
+User=root
+Restart=always
+RestartSec=5
+
+# The contactor is normally open, so a crash already drops the pump. These
+# limits stop a crash loop from hammering the relay.
+StartLimitBurst=0
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=pumpd
+
+# The controller only needs its own data directory and the hardware nodes.
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/pump-protection
+PrivateTmp=yes
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target

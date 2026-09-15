@@ -1,0 +1,23 @@
+[Unit]
+Description=Captive portal responder for the pump hotspot
+After=NetworkManager.service
+
+# No relationship with pump-protection.service, in either direction. This
+# unit binds a socket for the phone's convenience; the pump does not care
+# whether it lives or dies.
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/local/sbin/pump-portal-responder
+Restart=on-failure
+RestartSec=30
+# Port 80 is privileged, but nothing else here needs root.
+User=root
+# Hard ceiling on a 512MB board. If this ever leaks, it gets killed and the
+# protection loop keeps its memory.
+MemoryMax=48M
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

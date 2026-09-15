@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<svg xmlns="http://www.w3.org/2000/svg" style="clip-rule:evenodd;fill-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41420996" version="1.1" width="1.54in" height="1in" xml:space="preserve" gorn="0"  id="svg3681" viewBox="0 0 138.6 89.999999" xmlns:xml="http://www.w3.org/XML/1998/namespace">
+    <desc >
+        <referenceFile >HLK-PM01-Schematic.svg</referenceFile>
+    </desc>
+    <metadata  id="metadata3723">
+        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+            <cc:Work xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cc="http://creativecommons.org/ns#" rdf:about="">
+                <dc:format xmlns:dc="http://purl.org/dc/elements/1.1/">image/svg+xml</dc:format>
+                <dc:type xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://purl.org/dc/dcmitype/StillImage" xmlns:dc="http://purl.org/dc/elements/1.1/"/>
+                <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/"/>
+            </cc:Work>
+        </rdf:RDF>
+    </metadata>
+    <defs  id="defs3721"/>
+    <g transform="matrix(1.227863,0,0,1.2108579,-37.077745,-1.3941377)" >
+        <g >
+            <g >
+                <g >
+                    <g >
+                        <g gorn="0.3.0.0.0.0.0"  id="g3683">
+                            <g gorn="0.3.0.0.0.0.0.0"  id="g3685">
+                                <rect y="16.6371" fill="#ffffff" width="7.1999998" height="0.0459392" stroke="#16ff00" x="135.392" gorn="0.3.0.0.0.0.0.0.0" stroke-width="1"  id="connector2pin"/>
+                                <rect y="16.659" fill="none" width="0.0164" height="0.00209188" stroke="none" x="143.084" gorn="0.3.0.0.0.0.0.0.1" stroke-width="0"  id="connector2terminal"/>
+                                <rect y="60.2906" fill="#ffffff" width="7.1999998" height="0.0459392" stroke="#16ff00" x="135.392" gorn="0.3.0.0.0.0.0.0.2" stroke-width="1"  id="connector3pin"/>
+                                <rect y="60.3125" fill="none" width="0.0164" height="0.00209188" stroke="none" x="143.084" gorn="0.3.0.0.0.0.0.0.3" stroke-width="0"  id="connector3terminal"/>
+                            </g>
+                            <rect y="31.3773" fill="#0600ff" width="7.1999998" height="0.0459392" stroke="#0013ff" x="30.7409" gorn="0.3.0.0.0.0.0.1" stroke-width="1"  id="connector0pin"/>
+                            <rect y="31.3992" fill="none" width="0.0164" height="0.00209188" stroke="none" x="30.2327" gorn="0.3.0.0.0.0.0.2" stroke-width="0"  id="connector0terminal"/>
+                            <rect y="45.550499" fill="#0600ff" width="7.1999998" height="0.0459392" stroke="#0013ff" x="30.7409" gorn="0.3.0.0.0.0.0.3" stroke-width="1"  id="connector1pin"/>
+                            <rect y="45.5724" fill="none" width="0.0164" height="0.00209188" stroke="none" x="30.2327" gorn="0.3.0.0.0.0.0.4" stroke-width="0"  id="connector1terminal"/>
+                            <rect y="9.8569202" style="stroke-linecap:round" fill="#ffffff" width="96.377998" height="57.2598" stroke="#000000" x="38.527" gorn="0.3.0.0.0.0.0.5" stroke-width="1"  id="rect3695"/>
+                            <g style="font-size:5.94430017px;font-family:Droid Sans;fill:#000000" gorn="0.3.0.0.0.0.0.6"  id="text3697">
+                                <text y="18.737499" x="123.729" >-V</text>
+                                <text y="18.737499" x="128.84" gorn="0.3.0.0.0.0.0.6.1"  id="tspan3699">o</text>
+                            </g>
+                            <g style="font-size:5.94430017px;font-family:Droid Sans;fill:#000000" gorn="0.3.0.0.0.0.0.7"  id="text3701">
+                                <text y="61.824001" x="122.367" >+V</text>
+                                <text y="61.824001" x="128.84" gorn="0.3.0.0.0.0.0.7.1"  id="tspan3703">o</text>
+                            </g>
+                            <text y="39.550301" style="font-size:9.0708704px;font-family:Droid Sans;fill:#000000" x="66.413498" gorn="0.3.0.0.0.0.0.8"  id="text3705">HLK-PM01</text>
+                            <text y="33.214199" style="font-size:5.45108986px;font-family:Droid Sans;fill:#000000" x="40.611401" gorn="0.3.0.0.0.0.0.9"  id="text3707">AC</text>
+                            <text y="46.878502" style="font-size:5.45108986px;font-family:Droid Sans;fill:#000000" x="40.611401" gorn="0.3.0.0.0.0.0.10"  id="text3709">AC</text>
+                            <text y="29.2456" style="font-size:3px;font-family:Droid Sans;fill:#555555" x="33.228901" gorn="0.3.0.0.0.0.0.11"  id="text3711">1</text>
+                            <text y="43.127602" style="font-size:3px;font-family:Droid Sans;fill:#555555" x="32.997002" gorn="0.3.0.0.0.0.0.12"  id="text3713">2</text>
+                            <text y="14.4889" style="font-size:3px;font-family:Droid Sans;fill:#555555" x="137.636" gorn="0.3.0.0.0.0.0.13"  id="text3715">3</text>
+                            <text y="57.668999" style="font-size:3px;font-family:Droid Sans;fill:#555555" x="137.8" gorn="0.3.0.0.0.0.0.14"  id="text3717">4</text>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

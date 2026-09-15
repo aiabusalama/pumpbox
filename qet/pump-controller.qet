@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project version="0.90" title="Solar Pump Controller">
+  <newdiagrams>
+    <defaultconductor type="single" num_size="7" displaytext="1" condsize="1" bicolor="false" text=""/>
+  </newdiagrams>
+  <diagram title="Power - array to pump" folio="%id/%total" displayrows="true" rowsize="80" colsize="60" cols="17" rows="8" displaycols="true" order="1">
+    <defaultconductor num_size="7" bicolor="false" displaytext="1" numsize="7" condsize="1" text="" type="single"/>
+    <titleblock author="" date="now" title="Power - array to pump" folio="%id/%total" plant="Solar pump" locmach="" indexrev="A" version="0.90"/>
+    <elements>
+      <element x="160" y="150" uuid="{6caff860-6c49-45ff-9016-2faef3a8ffdf}" type="common://10_electric/10_allpole/392_generators_sources/70_voltage_current_sources/tention_o.elmt" id="1" freezeLabel="false" rotation="0">
+        <elementInformations>
+          <elementInformation name="label" show="1">PV1</elementInformation>
+          <elementInformation name="comment" show="1">3S1P  126V run / 150.9V open</elementInformation>
+        </elementInformations>
+      </element>
+      <element x="160" y="260" uuid="{26e686f7-e9bb-43a9-b1c8-4f9460c976d6}" type="common://10_electric/10_allpole/200_fuses_protective_gears/11_circuit_breakers/disjonct-m_2f.elmt" id="2" freezeLabel="false" rotation="0">
+        <elementInformations>
+          <elementInformation name="label" show="1">Q1</elementInformation>
+          <elementInformation name="comment" show="1">16A DC 2P</elementInformation>
+        </elementInformations>
+      </element>
+      <element x="160" y="370" uuid="{e24a1e5b-b116-4603-b66a-c9b7a5464fe9}" type="common://10_electric/10_allpole/200_fuses_protective_gears/10_fuses/pojistka2p.elmt" id="3" freezeLabel="false" rotation="0">
+        <elementInformations>
+          <elementInformation name="label" show="1">F1</elementInformation>
+          <elementInformation name="comment" show="1">16A 1000V</elementInformation>
+        </elementInformations>
+      </element>
+      <element x="300" y="370" uuid="{8bd2eb1a-dde4-4c5a-bc3c-aed9bc9c1f0f}" type="common://10_electric/10_allpole/200_fuses_protective_gears/90_overvoltage_protections/parafoudre.elmt" id="4" freezeLabel="false" rotation="0">
+        <elementInformations>
+          <elementInformation name="label" show="1">F2</elementInformation>
+          <elementInformation name="comment" show="1">SPD Type 2 DC</elementInformation>
+        </elementInformations>
+      </element>
+      <element x="160" y="480" uuid="{e4dd4fdc-b378-44a4-9417-12c71960335d}" type="common://10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/02_power_contacts/com_puiss1.elmt" id="5" freezeLabel="false" rotation="0">
+        <elementInformations>
+          <elementInformation name="label" show="1">KM1</elementInformation>
+          <elementInformation name="comment" show="1">pole 1-2</elementInformation>
+        </elementInformations>
+      </element>
+      <element x="240" y="480" uuid="{cdbc6bc8-4e89-43ab-a215-7a63d8d680b9}" type="common://10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/02_power_contacts/com_puiss1.elmt" id="6" freezeLabel="false" rotation="0">
+        <elementInformations>
+          <elementInformation name="label" show="1">KM1</elementInformation>
+          <elementInformation name="comment" show="1">pole 3-4</elementInformation>
+        </elementInformations>
+      </element>
+      <element x="320" y="480" uuid="{bac31e91-3c6c-4a7a-a785-e7944675ded1}" type="common://10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/02_power_contacts/com_puiss1.elmt" id="7" freezeLabel="false" rotation="0">
+        <elementInformations>
+          <elementInformation name="label" show="1">KM1</elementInformation>
+          <elementInformation name="comment" show="1">pole 5-6</elementInformation>
+        </elementInformations>
+      </element>
+      <element x="160" y="610" uuid="{96b1a7a9-a6e5-45ca-bc7e-b6e10bbb2292}" type="common://10_electric/10_allpole/391_consumers_actuators/10_engines/moteur_dc.elmt" id="8" freezeLabel="false" rotation="0">
+        <elementInformations>
+          <elementInformation name="label" show="1">M1</elementInformation>
+          <elementInformation name="comment" show="1">1500W 11A DC</elementInformation>
+        </elementInformations>
+      </element>
+    </elements>
+    <conductors>
+      <conductor element1="1" terminal1="s" element2="2" terminal2="in1" type="single" freezeLabel="false" num="1" >
+      </conductor>
+      <conductor element1="2" terminal1="out2" element2="3" terminal2="in1" type="single" freezeLabel="false" num="2" >
+      </conductor>
+      <conductor element1="3" terminal1="out2" element2="5" terminal2="n" type="single" freezeLabel="false" num="3" >
+      </conductor>
+      <conductor element1="5" terminal1="s" element2="6" terminal2="n" type="single" freezeLabel="false" num="4" >
+        <segments>160,500 160,520 240,520 240,460</segments>
+      </conductor>
+      <conductor element1="6" terminal1="s" element2="7" terminal2="n" type="single" freezeLabel="false" num="5" >
+        <segments>240,500 240,520 320,520 320,460</segments>
+      </conductor>
+      <conductor element1="7" terminal1="s" element2="8" terminal2="n" type="single" freezeLabel="false" num="6" >
+        <segments>320,500 320,560 160,560 160,580</segments>
+      </conductor>
+      <conductor element1="3" terminal1="out4" element2="4" terminal2="n" type="single" freezeLabel="false" num="2" >
+        <segments>170,385 300,385 300,349</segments>
+      </conductor>
+    </conductors>
+    <inputs>
+      <input x="40" y="40" text="SOLAR PUMP CONTROLLER - POWER PATH" font="Sans Serif,13,-1,5,75,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="40" y="62" text="3 x GSE-HC455 in series. Voc 150.9V at 25C, ~165V cold." font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="40" y="78" text="Pump card is destroyed above 150V, so the contactor stays open until the array settles." font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="400" y="470" text="All three poles in series." font="Sans Serif,10,-1,5,75,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="400" y="486" text="The LP1K0901BD is AC-rated; three gaps" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="400" y="500" text="in sequence break a 143V DC arc that" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="400" y="514" text="one gap cannot." font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="400" y="610" text="Shunt goes in the NEGATIVE return," font="Sans Serif,10,-1,5,75,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="400" y="626" text="between pump minus and array minus." font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="400" y="640" text="Fat M6 bolts carry current; the two" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="400" y="654" text="small screws are the sense tap." font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="400" y="250" text="Q1 is the only safe way to break" font="Sans Serif,10,-1,5,75,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="400" y="266" text="this circuit. DC arcs do not self-" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="400" y="280" text="extinguish - never pull a live joint." font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="400" y="360" text="SPD must be DC-rated. An AC unit" font="Sans Serif,10,-1,5,75,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="400" y="376" text="looks identical and fails badly here." font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+    </inputs>
+  </diagram>
+  <diagram title="Supplies - 3 PSUs and commons" folio="%id/%total" displayrows="true" rowsize="80" colsize="60" cols="17" rows="8" displaycols="true" order="2">
+    <defaultconductor num_size="7" bicolor="false" displaytext="1" numsize="7" condsize="1" text="" type="single"/>
+    <titleblock author="" date="now" title="Supplies - 3 PSUs and commons" folio="%id/%total" plant="Solar pump" locmach="" indexrev="A" version="0.90"/>
+    <elements>
+      <element x="140" y="150" uuid="{d9e06f4e-b5f8-49a6-ab26-4d60677ef3a5}" type="common://10_electric/10_allpole/392_generators_sources/70_voltage_current_sources/tention_o.elmt" id="1" freezeLabel="false" rotation="0">
+        <elementInformations>
+          <elementInformation name="label" show="1">X1</elementInformation>
+          <elementInformation name="comment" show="1">143V DC bus (from folio 1)</elementInformation>
+        </elementInformations>
+      </element>
+      <element x="140" y="260" uuid="{7651a1d7-7f0a-42ea-95fd-35487e682ce0}" type="common://10_electric/10_allpole/330_transformers_power_supplies/30_power_supplies/alim.elmt" id="2" freezeLabel="false" rotation="0">
+        <elementInformations>
+          <elementInformation name="label" show="1">G1 HLK-20M05</elementInformation>
+          <elementInformation name="comment" show="1">143V -&gt; 5V  (Pi Zero W, LCD, relay logic)</elementInformation>
+        </elementInformations>
+      </element>
+      <element x="140" y="380" uuid="{58546f5b-b933-4393-b097-57b7f6f60747}" type="common://10_electric/10_allpole/330_transformers_power_supplies/30_power_supplies/alim.elmt" id="3" freezeLabel="false" rotation="0">
+        <elementInformations>
+          <elementInformation name="label" show="1">G2 HLK-20M12</elementInformation>
+          <elementInformation name="comment" show="1">143V -&gt; 12V (two SSRC-04 level relays)</elementInformation>
+        </elementInformations>
+      </element>
+      <element x="140" y="500" uuid="{1d796d33-b613-45ac-92e8-2f69ef27d1d7}" type="common://10_electric/10_allpole/330_transformers_power_supplies/30_power_supplies/alim.elmt" id="4" freezeLabel="false" rotation="0">
+        <elementInformations>
+          <elementInformation name="label" show="1">G3 HLK-10M24</elementInformation>
+          <elementInformation name="comment" show="1">143V -&gt; 24V (contactor coil)</elementInformation>
+        </elementInformations>
+      </element>
+      <element x="340" y="320" uuid="{5e05c9a1-c5a1-4f67-8f81-f4d1017cdb32}" type="common://10_electric/10_allpole/130_terminals_terminal_strips/bornier5x.elmt" id="5" freezeLabel="false" rotation="0">
+        <elementInformations>
+          <elementInformation name="label" show="1">+5V</elementInformation>
+          <elementInformation name="comment" show="1">common rail - Pi Zero W, LCD, relay logic</elementInformation>
+        </elementInformations>
+      </element>
+      <element x="340" y="420" uuid="{9a11d95b-66eb-4a0c-b2dc-1e0509a1ee2e}" type="common://10_electric/10_allpole/130_terminals_terminal_strips/bornier5x.elmt" id="6" freezeLabel="false" rotation="0">
+        <elementInformations>
+          <elementInformation name="label" show="1">+12V</elementInformation>
+          <elementInformation name="comment" show="1">common rail - SSRC-04 A1 (well + tank)</elementInformation>
+        </elementInformations>
+      </element>
+      <element x="340" y="520" uuid="{bf71a158-5bc3-4522-b272-fcf9bc48bd41}" type="common://10_electric/10_allpole/130_terminals_terminal_strips/bornier5x.elmt" id="7" freezeLabel="false" rotation="0">
+        <elementInformations>
+          <elementInformation name="label" show="1">+24V</elementInformation>
+          <elementInformation name="comment" show="1">common rail - KM1 coil via well interlock</elementInformation>
+        </elementInformations>
+      </element>
+      <element x="340" y="620" uuid="{c8369779-9b4a-4c67-a514-28ba0c8b687d}" type="common://10_electric/10_allpole/130_terminals_terminal_strips/bornier5x.elmt" id="8" freezeLabel="false" rotation="0">
+        <elementInformations>
+          <elementInformation name="label" show="1">GND</elementInformation>
+          <elementInformation name="comment" show="1">common 0V return for all three PSUs</elementInformation>
+        </elementInformations>
+      </element>
+    </elements>
+    <conductors>
+      <conductor element1="1" terminal1="s" element2="2" terminal2="in1" type="single" freezeLabel="false" num="143+" >
+      </conductor>
+      <conductor element1="1" terminal1="s" element2="3" terminal2="in1" type="single" freezeLabel="false" num="143+" >
+      </conductor>
+      <conductor element1="1" terminal1="s" element2="4" terminal2="in1" type="single" freezeLabel="false" num="143+" >
+      </conductor>
+      <conductor element1="1" terminal1="n" element2="2" terminal2="in2" type="single" freezeLabel="false" num="143-" >
+      </conductor>
+      <conductor element1="1" terminal1="n" element2="3" terminal2="in2" type="single" freezeLabel="false" num="143-" >
+      </conductor>
+      <conductor element1="1" terminal1="n" element2="4" terminal2="in2" type="single" freezeLabel="false" num="143-" >
+      </conductor>
+      <conductor element1="5" terminal1="t1" element2="5" terminal2="t5" type="single" freezeLabel="false" num="" >
+      </conductor>
+      <conductor element1="6" terminal1="t1" element2="6" terminal2="t5" type="single" freezeLabel="false" num="" >
+      </conductor>
+      <conductor element1="7" terminal1="t1" element2="7" terminal2="t5" type="single" freezeLabel="false" num="" >
+      </conductor>
+      <conductor element1="8" terminal1="t1" element2="8" terminal2="t5" type="single" freezeLabel="false" num="" >
+      </conductor>
+      <conductor element1="2" terminal1="out1" element2="5" terminal2="t1" type="single" freezeLabel="false" num="+5V" >
+      </conductor>
+      <conductor element1="3" terminal1="out1" element2="6" terminal2="t1" type="single" freezeLabel="false" num="+12V" >
+      </conductor>
+      <conductor element1="4" terminal1="out1" element2="7" terminal2="t1" type="single" freezeLabel="false" num="+24V" >
+      </conductor>
+      <conductor element1="2" terminal1="out2" element2="8" terminal2="t2" type="single" freezeLabel="false" num="GND" >
+      </conductor>
+      <conductor element1="3" terminal1="out2" element2="8" terminal2="t3" type="single" freezeLabel="false" num="GND" >
+      </conductor>
+      <conductor element1="4" terminal1="out2" element2="8" terminal2="t4" type="single" freezeLabel="false" num="GND" >
+      </conductor>
+    </conductors>
+    <inputs>
+      <input x="40" y="40" text="SUPPLIES &amp; DISTRIBUTION" font="Sans Serif,13,-1,5,75,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="40" y="62" text="The single HLK-10M24 + LM2596 chain browned out a Pi 4. It is replaced by three separate isolated" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="40" y="76" text="Hi-Link supplies, all fed in parallel from the 143V DC bus, each feeding its own common rail." font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="300" text="RAIL TAPS  (one load per bottom terminal)" font="Sans Serif,11,-1,5,75,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="322" text="+5V  b1 Pi Zero W   b2 LCD 20x4   b3 relay logic" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="336" text="+12V b1 K-WELL A1   b2 K-TANK A1" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="350" text="+24V b1 KM1 coil (through well interlock, folio 3)" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="364" text="GND  common 0V return, jumper-linked" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="400" text="WHY THREE SUPPLIES" font="Sans Serif,11,-1,5,75,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="422" text="Isolated rails stop the Pi from browning out when" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="436" text="the 24V coil pulls in. Each load taps its own" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="450" text="terminal on a jumper-linked DIN rail - no wires" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="464" text="jammed together under one screw." font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="500" text="POWER BUDGET" font="Sans Serif,11,-1,5,75,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="522" text="5V  rail  Pi 0.9W + LCD/logic 0.6W" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="536" text="12V rail  2x SSRC-04  ~0.6W" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="550" text="24V rail  KM1 coil    3.0W" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+    </inputs>
+  </diagram>
+  <diagram title="Control - level relays and coil" folio="%id/%total" displayrows="true" rowsize="80" colsize="60" cols="17" rows="8" displaycols="true" order="3">
+    <defaultconductor num_size="7" bicolor="false" displaytext="1" numsize="7" condsize="1" text="" type="single"/>
+    <titleblock author="" date="now" title="Control - level relays and coil" folio="%id/%total" plant="Solar pump" locmach="" indexrev="A" version="0.90"/>
+    <elements>
+      <element x="120" y="180" uuid="{d6c332c1-7e79-4af2-831e-90bba7520491}" type="common://10_electric/10_allpole/392_generators_sources/70_voltage_current_sources/tention_o.elmt" id="1" freezeLabel="false" rotation="0">
+        <elementInformations>
+          <elementInformation name="label" show="1">+24V</elementInformation>
+          <elementInformation name="comment" show="1">from +24V rail (G3, folio 2)</elementInformation>
+        </elementInformations>
+      </element>
+      <element x="120" y="380" uuid="{8d567edf-f960-4fdb-9c3b-6f9bd48284b3}" type="common://10_electric/10_allpole/392_generators_sources/70_voltage_current_sources/tention_o.elmt" id="2" freezeLabel="false" rotation="0">
+        <elementInformations>
+          <elementInformation name="label" show="1">+12V</elementInformation>
+          <elementInformation name="comment" show="1">from +12V rail (G2, folio 2)</elementInformation>
+        </elementInformations>
+      </element>
+      <element x="620" y="560" uuid="{7d2e1ccc-64fb-4bbb-9cd9-6e7d2bb0804c}" type="common://10_electric/10_allpole/392_generators_sources/70_voltage_current_sources/tention_o.elmt" id="3" freezeLabel="false" rotation="0">
+        <elementInformations>
+          <elementInformation name="label" show="1">GND</elementInformation>
+          <elementInformation name="comment" show="1">from GND rail (folio 2)</elementInformation>
+        </elementInformations>
+      </element>
+      <element x="260" y="300" uuid="{fcdfd5bc-a85d-4b90-ac76-2a6ab0170fba}" type="common://10_electric/99_miscellaneous_unsorted/relais_niveau.elmt" id="4" freezeLabel="false" rotation="0">
+        <elementInformations>
+          <elementInformation name="label" show="1">K-WELL SSRC-04</elementInformation>
+          <elementInformation name="comment" show="1">12V - dry-well interlock; C/NO in series with coil</elementInformation>
+        </elementInformations>
+      </element>
+      <element x="520" y="300" uuid="{c2e5e8cf-748a-41ec-8f14-31c329899301}" type="common://10_electric/99_miscellaneous_unsorted/relais_niveau.elmt" id="5" freezeLabel="false" rotation="0">
+        <elementInformations>
+          <elementInformation name="label" show="1">K-TANK SSRC-04</elementInformation>
+          <elementInformation name="comment" show="1">12V - auto-fill; C/NO read by Pi</elementInformation>
+        </elementInformations>
+      </element>
+      <element x="260" y="500" uuid="{b5cff63e-305f-44f8-a137-1060bd0e124b}" type="common://10_electric/10_allpole/310_relays_contactors_contacts/01_coils/bobine3.elmt" id="6" freezeLabel="false" rotation="0">
+        <elementInformations>
+          <elementInformation name="label" show="1">KM1</elementInformation>
+          <elementInformation name="comment" show="1">24V DC coil  3W</elementInformation>
+        </elementInformations>
+      </element>
+    </elements>
+    <conductors>
+      <conductor element1="1" terminal1="s" element2="4" terminal2="C" type="single" freezeLabel="false" num="24+" >
+      </conductor>
+      <conductor element1="4" terminal1="NO" element2="6" terminal2="n" type="single" freezeLabel="false" num="coil+" >
+      </conductor>
+      <conductor element1="6" terminal1="s" element2="3" terminal2="n" type="single" freezeLabel="false" num="0V" >
+      </conductor>
+      <conductor element1="2" terminal1="s" element2="4" terminal2="A1" type="single" freezeLabel="false" num="12+" >
+      </conductor>
+      <conductor element1="2" terminal1="s" element2="5" terminal2="A1" type="single" freezeLabel="false" num="12+" >
+      </conductor>
+      <conductor element1="4" terminal1="A2" element2="3" terminal2="n" type="single" freezeLabel="false" num="0V" >
+      </conductor>
+      <conductor element1="5" terminal1="A2" element2="3" terminal2="n" type="single" freezeLabel="false" num="0V" >
+      </conductor>
+    </conductors>
+    <inputs>
+      <input x="40" y="40" text="CONTROL &amp; LEVEL RELAYS" font="Sans Serif,13,-1,5,75,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="40" y="62" text="Two SSRC-04 liquid-level relays (hacked to 12V DC). WELL is a hard safety interlock wired in series" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="40" y="76" text="with the coil; TANK drives Auto-mode fill through the Pi. Rails come from folio 2." font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="150" y="300" text="well U/L/B" font="Sans Serif,8,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="410" y="300" text="tank U/L/B" font="Sans Serif,8,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="150" y="560" text="WELL CONTACT IN SERIES WITH COIL" font="Sans Serif,11,-1,5,75,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="150" y="580" text="K-WELL C/NO sits between +24V and the KM1 coil. Drop the" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="150" y="594" text="well level and NO opens - the coil de-energises no matter" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="150" y="608" text="what the Pi is doing. This is the hard dry-run interlock." font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="150" text="PI TAPS (read-only, 5V logic)" font="Sans Serif,11,-1,5,75,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="172" text="K-WELL C/NO -&gt; Pi GPIO (well status, read)" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="186" text="K-TANK C/NO -&gt; Pi GPIO (Auto-mode fill control)" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="200" text="Both taps are level-shifted to the 5V rail." font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="230" text="METER LINK" font="Sans Serif,11,-1,5,75,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="252" text="PZEM-017 A/B -&gt; MAX485 A/B" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="266" text="MAX485 RO -&gt; Pi pin 10  (GPIO15)" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="280" text="MAX485 DI -&gt; Pi pin 8   (GPIO14)" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="294" text="MAX485 DE+RE -&gt; Pi pin 12 (GPIO18)" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="308" text="Modbus RTU  9600 8N2" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="400" text="FAIL-SAFE" font="Sans Serif,11,-1,5,75,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="420" text="The contactor is normally open. Losing any PSU, the Pi," font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="434" text="a level relay or a dry well all drop the pump out. It" font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+      <input x="560" y="448" text="only runs while the well is wet AND the Pi holds it closed." font="Sans Serif,9,-1,5,50,0,0,0,0,0" rotation="0" tagg="none"/>
+    </inputs>
+  </diagram>
+</project>

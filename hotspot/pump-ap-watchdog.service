@@ -1,0 +1,20 @@
+[Unit]
+Description=Ensure the pump field hotspot is up
+# Ordering only. No Requires=/Wants= on NetworkManager: if NM is dead this
+# should fail visibly, not drag NM around behind it.
+After=NetworkManager.service
+
+# Deliberately NOT related to pump-protection.service in any direction.
+# The pump must run on a box whose radio is dead.
+
+[Service]
+Type=oneshot
+# Ordering against NetworkManager.service means "after the unit started",
+# not "after NM is ready to take commands". nm-online waits for the real
+# thing; a fixed sleep would be guesswork.
+ExecStartPre=/usr/bin/nm-online -s -q --timeout=60
+ExecStart=/usr/local/sbin/pump-ap-ensure __PROFILE__ __IFACE__
+
+# No SuccessExitStatus= here on purpose. pump-ap-ensure already maps
+# nmcli's codes (3 = timeout, tolerated; 4 = activation failed, fatal) so a
+# failed unit means exactly one thing: the AP did not come up.

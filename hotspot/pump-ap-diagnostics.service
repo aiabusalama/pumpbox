@@ -1,0 +1,19 @@
+[Unit]
+Description=Record network state to the boot partition for phone-only diagnosis
+# Run late enough that the AP has had its chance, so the log records the
+# outcome rather than the attempt.
+After=NetworkManager.service pump-ap-watchdog.service
+
+# No relationship with pump-protection.service, in either direction.
+
+[Service]
+Type=oneshot
+# The watchdog's first run is OnBootSec=30s and may itself wait on
+# nm-online. Give the whole sequence room to settle before photographing
+# it, otherwise the log always shows "activating".
+ExecStartPre=/bin/sleep 45
+ExecStart=/usr/local/sbin/pump-ap-diagnostics __IFACE__ __PROFILE__
+TimeoutStartSec=120
+
+[Install]
+WantedBy=multi-user.target

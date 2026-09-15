@@ -1,0 +1,14 @@
+[Unit]
+Description=Re-check the pump field hotspot every couple of minutes
+
+[Timer]
+# A one-shot retry at boot is not a watchdog - it does nothing about an AP
+# that drops an hour into commissioning, while you are standing at the box
+# with a phone that just lost the dashboard. Repeat.
+OnBootSec=30s
+OnUnitActiveSec=2min
+AccuracySec=10s
+Unit=pump-ap-watchdog.service
+
+[Install]
+WantedBy=timers.target
