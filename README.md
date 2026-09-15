@@ -44,9 +44,12 @@ That killed the first controller card. The second time it could not be repaired.
 - `fritzing/`, `qet/` — wiring sketch and electrical diagram.
 - `docs/` — enclosure layout and wiring pages; `DESIGN.md` and `BUILD.md` — design notes and build guide.
 
-## Safety
+## Disclaimer
 
-This box switches 150 V DC. It is a personal project shared as-is; read `BUILD.md` before copying any of it.
+This is a personal hobby project, built for one farm and shared as-is. It is not a product, it is not certified,
+and it is not affiliated with or endorsed by any employer or manufacturer. It switches 150 V DC, which can injure
+or kill: if you copy any of it, you take full responsibility for your own installation, and you should have a
+qualified electrician check it. No warranty of any kind — see the licence.
 
 ## Licence
 
